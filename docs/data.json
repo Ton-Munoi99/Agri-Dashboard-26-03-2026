@@ -1,0 +1,129 @@
+{
+  "generated_at": "2026-03-26T03:52:18.823620",
+  "generated_date": "26 March 2026",
+  "generated_date_th": "26 มี.ค. 2569",
+  "rice_jasmine": {
+    "commodity": "ข้าวเปลือกหอมมะลิ 105",
+    "commodity_en": "Jasmine Paddy Rice",
+    "price": null,
+    "unit": "THB/ตัน",
+    "date": "25 มี.ค. 2569",
+    "source": "rakakaset.com (อ้าง OAE)",
+    "source_url": "https://rakakaset.com/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7/",
+    "history_30d": [],
+    "status": "confirmed"
+  },
+  "cassava": {
+    "cassava_fresh": {
+      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
+      "commodity_en": "Fresh Cassava 30% Starch",
+      "price_low": null,
+      "price_high": null,
+      "unit": "THB/กก.",
+      "date": "25 มีนาคม 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    },
+    "cassava_chips": {
+      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
+      "commodity_en": "Cassava Chips Ayutthaya",
+      "price_low": 7.3,
+      "price_high": 7.5,
+      "unit": "THB/กก.",
+      "date": "25 มีนาคม 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    }
+  },
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 70.5,
+    "price_high": 71.56,
+    "unit": "THB/กก.",
+    "date": "05 มี.ค. 69",
+    "source": "ฐานเศรษฐกิจ / กยท.",
+    "source_url": "https://www.thansettakij.com/economy/trade-agriculture/653068",
+    "status": "confirmed",
+    "note": "raot.co.th ต้องสมัครสมาชิก; อ้างจากรายงานข่าว"
+  },
+  "sugarcane": {
+    "commodity": "อ้อย (ราคาขั้นต้น)",
+    "commodity_en": "Sugarcane Initial Price",
+    "current_season": "2568/69",
+    "current_initial": 890,
+    "unit": "THB/ตัน @ 10 CCS",
+    "date": "พ.ย. 68",
+    "source": "กอน./ครม.",
+    "source_url": "https://spacebar.th/business/cabinet-sugarcane-price-2569",
+    "status": "confirmed",
+    "note": "ราคาประกาศรายปีต่อฤดูการผลิต โดย กอน./ครม.",
+    "history": [
+      {
+        "season": "2568/69",
+        "initial": 890,
+        "final": null,
+        "yoy_initial": -23.3,
+        "source_date": "พ.ย. 68",
+        "source": "กอน./ครม."
+      },
+      {
+        "season": "2567/68",
+        "initial": 1160,
+        "final": 1152.62,
+        "yoy_initial": -18.3,
+        "source_date": "ม.ค. 68",
+        "source": "ครม."
+      },
+      {
+        "season": "2566/67",
+        "initial": 1420,
+        "final": 1404.17,
+        "yoy_initial": 31.5,
+        "source_date": "ก.พ. 68",
+        "source": "ครม."
+      },
+      {
+        "season": "2565/66",
+        "initial": 1080,
+        "final": 1197.53,
+        "yoy_initial": null,
+        "source_date": null,
+        "source": "ThaiPBS"
+      },
+      {
+        "season": "2564/65",
+        "initial": 920,
+        "final": null,
+        "yoy_initial": null,
+        "source_date": null,
+        "source": "อ้างอิง"
+      }
+    ]
+  },
+  "rice_fob": {
+    "white5": {
+      "commodity": "ข้าวขาว 5% FOB Bangkok",
+      "commodity_en": "White Rice 5% Broken FOB",
+      "price_low": 410.0,
+      "price_high": 410.0,
+      "unit": "USD/ตัน",
+      "date": "มี.ค. 69",
+      "source": "Nation Thailand / Thai Rice Exporters Assoc.",
+      "source_url": "https://www.nationthailand.com",
+      "status": "confirmed"
+    },
+    "homali": {
+      "commodity": "ข้าวหอมมะลิ 100% FOB",
+      "commodity_en": "Hom Mali 100% FOB",
+      "price": 1171.0,
+      "unit": "USD/ตัน",
+      "date": "มี.ค. 69",
+      "source": "Thai Rice Exporters Assoc.",
+      "source_url": "https://www.nationthailand.com",
+      "status": "confirmed"
+    }
+  }
+}
