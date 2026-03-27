@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-27T01:47:14.110770",
+  "generated_at": "2026-03-27T03:44:54.311195",
   "generated_date": "27 March 2026",
   "generated_date_th": "27 มี.ค. 2569",
   "rice_jasmine": {
@@ -18,12 +18,12 @@
       "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
       "commodity_en": "Fresh Cassava 30% Starch",
       "price_low": 2.85,
-      "price_high": 3.5,
+      "price_high": 3.05,
       "unit": "THB/กก.",
-      "date": "ค่าล่าสุดที่ทราบ",
+      "date": "25 มีนาคม 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "fallback"
+      "status": "confirmed"
     },
     "cassava_chips": {
       "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
@@ -31,10 +31,10 @@
       "price_low": 7.3,
       "price_high": 7.5,
       "unit": "THB/กก.",
-      "date": "ค่าล่าสุดที่ทราบ",
+      "date": "25 มีนาคม 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "fallback"
+      "status": "confirmed"
     }
   },
   "rubber": {
