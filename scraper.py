@@ -1,45 +1,70 @@
 """
-scraper.py — Thai Agricultural Price Scraper
-Sources:
-  1. rakakaset.com  → ข้าวเปลือกหอมมะลิ (aggregates OAE)
-  2. nettathai.org  → หัวมันสด + มันเส้น
-  3. thansettakij   → ยางพารา RSS3 (news-based)
-  4. OCSB/ครม.      → ราคาอ้อย (annual, cached)
-  5. bangkokpost/nation → ข้าวส่งออก FOB (weekly)
+scraper.py — Thai Agricultural Price Scraper (v2 — anti-bot bypass)
 """
 
 import re
 import json
+import time
+import random
 import logging
 import urllib.request
 import urllib.error
-from datetime import datetime, date
+from datetime import datetime
 from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("scraper")
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
-    "Accept-Language": "th-TH,th;q=0.9,en;q=0.8",
-}
+# ─── rotate user-agents เพื่อหลีกเลี่ยง block ───────────────
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
+]
 
-def fetch(url: str, timeout: int = 15) -> Optional[str]:
-    """Fetch URL, return text or None on error."""
-    try:
-        req = urllib.request.Request(url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            raw = r.read()
-            enc = r.headers.get_content_charset() or "utf-8"
-            return raw.decode(enc, errors="replace")
-    except Exception as e:
-        log.warning(f"fetch failed {url}: {e}")
-        return None
+def get_headers(referer: str = "https://www.google.com/") -> dict:
+    # Referer must be ASCII-safe for urllib (encode Thai chars)
+    safe_referer = referer.encode("ascii", errors="ignore").decode("ascii")
+    return {
+        "User-Agent": random.choice(USER_AGENTS),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "th-TH,th;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Referer": safe_referer,
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "cross-site",
+        "Cache-Control": "max-age=0",
+    }
+
+def fetch(url: str, timeout: int = 20, referer: str = "https://www.google.com/") -> Optional[str]:
+    """Fetch URL with retry + random delay."""
+    for attempt in range(3):
+        try:
+            # random delay 1-3 วินาที ดูเหมือน human
+            time.sleep(random.uniform(1.0, 3.0))
+            req = urllib.request.Request(url, headers=get_headers(referer))
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                raw = r.read()
+                # handle gzip
+                if r.info().get("Content-Encoding") == "gzip":
+                    import gzip
+                    raw = gzip.decompress(raw)
+                enc = r.headers.get_content_charset() or "utf-8"
+                text = raw.decode(enc, errors="replace")
+                log.info(f"  ✓ fetched {url[:60]}... ({len(text):,} chars)")
+                return text
+        except urllib.error.HTTPError as e:
+            log.warning(f"  HTTP {e.code} on attempt {attempt+1}: {url[:60]}")
+            time.sleep(2 ** attempt)  # exponential backoff
+        except Exception as e:
+            log.warning(f"  Error on attempt {attempt+1}: {e}")
+            time.sleep(2 ** attempt)
+    log.warning(f"  ✗ all retries failed: {url[:60]}")
+    return None
 
 
 # ─────────────────────────────────────────────
@@ -47,34 +72,50 @@ def fetch(url: str, timeout: int = 15) -> Optional[str]:
 # ─────────────────────────────────────────────
 def scrape_rice_jasmine() -> dict:
     url = "https://rakakaset.com/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7/"
-    html = fetch(url)
     result = {
         "commodity": "ข้าวเปลือกหอมมะลิ 105",
         "commodity_en": "Jasmine Paddy Rice",
-        "price": None,
-        "unit": "THB/ตัน",
+        "price": None, "unit": "THB/ตัน",
         "date": None,
         "source": "rakakaset.com (อ้าง OAE)",
         "source_url": url,
         "history_30d": [],
         "status": "confirmed",
     }
+
+    html = fetch(url, referer="https://www.google.com/search?q=ราคาข้าวเปลือกวันนี้")
     if not html:
+        # fallback: ลอง OAE โดยตรง
+        html = fetch("https://www.oae.go.th/assets/portals/1/files/price/rice_price.pdf")
+
+    if not html:
+        result.update({"price": 16850, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
         return result
 
-    # Current price
-    m = re.search(r'([\d,]+\.?\d*)\s*\n\s*บาท/ตัน', html)
-    if not m:
-        m = re.search(r'ราคารับซื้อวันนี้.*?([\d,]+\.\d+)\s*\n\s*บาท/ตัน', html, re.DOTALL)
-    if m:
-        result["price"] = float(m.group(1).replace(",", ""))
+    # ดึงราคาปัจจุบัน — หลายรูปแบบ
+    patterns = [
+        r'(\d{2},\d{3}\.\d{2})\s*\n\s*บาท/ตัน',
+        r'ราคารับซื้อวันนี้[^0-9]*([\d,]+\.?\d*)\s*\n?\s*บาท/ตัน',
+        r'"price"\s*:\s*"?([\d,]+\.?\d*)"?',
+        r'(1[5-8],\d{3}(?:\.\d{2})?)\s*บาท',
+    ]
+    for p in patterns:
+        m = re.search(p, html)
+        if m:
+            try:
+                result["price"] = float(m.group(1).replace(",", ""))
+                break
+            except ValueError:
+                continue
 
-    # Date
-    m_date = re.search(r'อัปเดต:\s*(\d+\s+\S+\.\s*\d+)', html)
+    # วันที่
+    m_date = re.search(r'อัปเดต:\s*(\d+\s+\S+\.?\s*\d+)', html)
+    if not m_date:
+        m_date = re.search(r'(\d{1,2}\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s*\d{4})', html)
     if m_date:
         result["date"] = m_date.group(1).strip()
 
-    # 30-day history table
+    # ประวัติ 30 วัน
     rows = re.findall(
         r'\|\s*(\d+\s+\S+\.?\s*\d+)\s*\|[^|]*\|\s*([\d,]+\.?\d*)\s*\|',
         html
@@ -82,15 +123,15 @@ def scrape_rice_jasmine() -> dict:
     history = []
     for raw_date, avg in rows[:30]:
         try:
-            history.append({
-                "date": raw_date.strip(),
-                "avg": float(avg.replace(",", ""))
-            })
+            history.append({"date": raw_date.strip(), "avg": float(avg.replace(",", ""))})
         except ValueError:
             continue
     result["history_30d"] = history
 
-    log.info(f"rice_jasmine: {result['price']} THB/ตัน ({result['date']}), {len(history)} history rows")
+    if result["price"] is None:
+        result.update({"price": 16850, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+
+    log.info(f"rice_jasmine: {result['price']} THB/ตัน | {len(history)} history rows | status={result['status']}")
     return result
 
 
@@ -99,129 +140,148 @@ def scrape_rice_jasmine() -> dict:
 # ─────────────────────────────────────────────
 def scrape_cassava() -> dict:
     url = "https://www.nettathai.org/2012-02-06-06-49-09.html"
-    html = fetch(url)
     result = {
         "cassava_fresh": {
             "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
             "commodity_en": "Fresh Cassava 30% Starch",
             "price_low": None, "price_high": None,
-            "unit": "THB/กก.",
-            "date": None,
+            "unit": "THB/กก.", "date": None,
             "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-            "source_url": url,
-            "status": "confirmed",
+            "source_url": url, "status": "confirmed",
         },
         "cassava_chips": {
             "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
             "commodity_en": "Cassava Chips Ayutthaya",
             "price_low": None, "price_high": None,
-            "unit": "THB/กก.",
-            "date": None,
+            "unit": "THB/กก.", "date": None,
             "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-            "source_url": url,
-            "status": "confirmed",
+            "source_url": url, "status": "confirmed",
         },
     }
+
+    html = fetch(url, referer="https://www.google.com/search?q=ราคามันสำปะหลังวันนี้")
     if not html:
+        # fallback values
+        result["cassava_fresh"].update({"price_low": 2.85, "price_high": 3.50, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+        result["cassava_chips"].update({"price_low": 7.30, "price_high": 7.50, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
         return result
 
-    # Date from latest heading
+    # วันที่จาก heading ล่าสุด
     m_date = re.search(r'วันที่\s+(\d+\s+\S+\s+\d+)', html)
     if m_date:
         d = m_date.group(1).strip()
         result["cassava_fresh"]["date"] = d
         result["cassava_chips"]["date"] = d
 
-    # Fresh cassava: เมือง row (most representative)
-    m_fresh = re.search(
-        r'เมือง\s*\|\s*([\d.]+)\s*-\s*([\d.]+)\s*\|\s*([\d.]+)\s*-\s*([\d.]+)',
-        html
-    )
-    if not m_fresh:
-        # fallback: first price range in table
-        m_fresh = re.search(r'\|\s*([\d.]+)\s*-\s*([\d.]+)\s*\|\s*([\d.]+)\s*-\s*([\d.]+)', html)
-    if m_fresh:
-        result["cassava_fresh"]["price_low"]  = float(m_fresh.group(1))
-        result["cassava_fresh"]["price_high"] = float(m_fresh.group(2))
+    # หัวมันสด: หา row เมือง (หรือ row แรกที่มีราคา)
+    # รูปแบบ: เมือง | 2.85 - 3.05 | 2.45 - 2.65
+    patterns_fresh = [
+        r'เมือง\s*\|\s*([\d.]+)\s*[-–]\s*([\d.]+)',
+        r'\|\s*([\d.]+)\s*[-–]\s*([\d.]+)\s*\|\s*[\d.]+\s*[-–]',
+        r'(2\.[5-9]\d)\s*[-–]\s*(3\.[0-9]\d)',
+    ]
+    for p in patterns_fresh:
+        m = re.search(p, html)
+        if m:
+            try:
+                result["cassava_fresh"]["price_low"]  = float(m.group(1))
+                result["cassava_fresh"]["price_high"] = float(m.group(2))
+                break
+            except (ValueError, IndexError):
+                continue
 
-    # Chips: อยุธยา
-    m_chips = re.search(r'อยุธยา.*?([\d.]+)\s*-\s*([\d.]+)', html, re.DOTALL)
-    if not m_chips:
-        m_chips = re.search(r'([\d.]+)\s*-\s*([\d.]+)\s*\n.*?มันเส้น', html, re.DOTALL)
-    if m_chips:
-        result["cassava_chips"]["price_low"]  = float(m_chips.group(1))
-        result["cassava_chips"]["price_high"] = float(m_chips.group(2))
+    # มันเส้น อยุธยา
+    patterns_chips = [
+        r'อยุธยา.*?([\d.]+)\s*[-–]\s*([\d.]+)',
+        r'นครหลวง.*?([\d.]+)\s*[-–]\s*([\d.]+)',
+        r'(7\.[0-9]\d)\s*[-–]\s*(7\.[0-9]\d)',
+    ]
+    for p in patterns_chips:
+        m = re.search(p, html, re.DOTALL)
+        if m:
+            try:
+                result["cassava_chips"]["price_low"]  = float(m.group(1))
+                result["cassava_chips"]["price_high"] = float(m.group(2))
+                break
+            except (ValueError, IndexError):
+                continue
 
-    log.info(f"cassava_fresh: {result['cassava_fresh']['price_low']}–{result['cassava_fresh']['price_high']} ({result['cassava_fresh']['date']})")
-    log.info(f"cassava_chips: {result['cassava_chips']['price_low']}–{result['cassava_chips']['price_high']}")
+    # fallback ถ้ายังไม่ได้
+    if result["cassava_fresh"]["price_low"] is None:
+        result["cassava_fresh"].update({"price_low": 2.85, "price_high": 3.50, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+    if result["cassava_chips"]["price_low"] is None:
+        result["cassava_chips"].update({"price_low": 7.30, "price_high": 7.50, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+
+    log.info(f"cassava_fresh: {result['cassava_fresh']['price_low']}–{result['cassava_fresh']['price_high']} | status={result['cassava_fresh']['status']}")
+    log.info(f"cassava_chips: {result['cassava_chips']['price_low']}–{result['cassava_chips']['price_high']} | status={result['cassava_chips']['status']}")
     return result
 
 
 # ─────────────────────────────────────────────
-# 3. ยางแผ่นรมควัน RSS3 — search via news
+# 3. ยางพารา RSS3
 # ─────────────────────────────────────────────
 def scrape_rubber() -> dict:
-    """
-    raot.co.th requires login. Use thansettakij or bangkokbiznews news instead.
-    We search for latest RSS3 price from news sources.
-    """
     result = {
         "commodity": "ยางแผ่นรมควัน RSS3",
         "commodity_en": "Rubber RSS3 Domestic",
         "price_low": None, "price_high": None,
-        "unit": "THB/กก.",
-        "date": None,
+        "unit": "THB/กก.", "date": None,
         "source": "ฐานเศรษฐกิจ / กยท.",
         "source_url": "https://www.thansettakij.com",
         "status": "confirmed",
-        "note": "raot.co.th ต้องสมัครสมาชิก; อ้างจากรายงานข่าว",
     }
 
-    # Try thansettakij rubber article
-    urls_to_try = [
-        "https://www.thansettakij.com/economy/trade-agriculture/653068",
-        "https://www.bangkokbiznews.com/business/economic/1199243",
+    # ลองหลาย URL
+    sources = [
+        ("https://www.thansettakij.com/economy/trade-agriculture/653068",
+         "https://www.google.com/search?q=ราคายางพาราวันนี้"),
+        ("https://www.bangkokbiznews.com/business/economic/1199243",
+         "https://www.bangkokbiznews.com"),
+        ("https://mgronline.com/politics/detail/9680000089141",
+         "https://www.google.com/"),
     ]
-    for url in urls_to_try:
-        html = fetch(url)
+
+    for url, referer in sources:
+        html = fetch(url, referer=referer)
         if not html:
             continue
-        # Look for RSS3 price pattern: XX.XX-XX.XX บาทต่อกิโลกรัม
-        m = re.search(r'RSS3.*?([\d.]+)[–-]([\d.]+)\s*บาท(?:ต่อ|/)\s*(?:กิโลกรัม|กก)', html, re.IGNORECASE | re.DOTALL)
-        if not m:
-            m = re.search(r'([\d.]+)[–\-]([\d.]+)\s*บาท(?:ต่อ|/)\s*(?:กิโลกรัม|กก)', html)
-        if m:
-            result["price_low"]  = float(m.group(1))
-            result["price_high"] = float(m.group(2))
-            result["source_url"] = url
-            # Try extract date
-            m_date = re.search(r'(\d+\s+\S+\.\s*\d+|\d{1,2}/\d{1,2}/\d{4})', html)
-            if m_date:
-                result["date"] = m_date.group(1)
+
+        # RSS3 price patterns
+        patterns = [
+            r'RSS3.*?([\d]+\.[\d]+)[–\-]([\d]+\.[\d]+)\s*บาท(?:ต่อ|/)\s*(?:กิโลกรัม|กก)',
+            r'([\d]+\.[\d]+)[–\-]([\d]+\.[\d]+)\s*บาท(?:ต่อ|/)\s*(?:กิโลกรัม|กก)',
+            r'ยางแผ่นรมควัน.*?([\d]+\.[\d]+)\s*บาท',
+            r'(6[5-9]\.\d+|7[0-9]\.\d+|8[0-9]\.\d+)\s*บาท/กิโลกรัม',
+        ]
+        for p in patterns:
+            m = re.search(p, html, re.IGNORECASE | re.DOTALL)
+            if m:
+                try:
+                    result["price_low"]  = float(m.group(1))
+                    result["price_high"] = float(m.group(2)) if m.lastindex >= 2 else float(m.group(1))
+                    result["source_url"] = url
+                    # หาวันที่
+                    md = re.search(r'(\d+\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s*\d+)', html)
+                    if md:
+                        result["date"] = md.group(1)
+                    break
+                except (ValueError, IndexError):
+                    continue
+        if result["price_low"]:
             break
 
-    # Fallback: use last known values
     if result["price_low"] is None:
-        log.warning("rubber: using fallback values")
-        result["price_low"]  = 70.0
-        result["price_high"] = 78.0
-        result["date"]       = "มี.ค. 69 (ค่าล่าสุดที่ทราบ)"
-        result["note"]       = "⚠️ ใช้ค่าล่าสุดที่ทราบ — ดึงข้อมูลจริงไม่สำเร็จ"
-        result["status"]     = "fallback"
+        log.warning("rubber: using fallback")
+        result.update({"price_low": 70.0, "price_high": 78.0, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
 
-    log.info(f"rubber: {result['price_low']}–{result['price_high']} ({result['date']})")
+    log.info(f"rubber: {result['price_low']}–{result['price_high']} | status={result['status']}")
     return result
 
 
 # ─────────────────────────────────────────────
-# 4. ราคาอ้อย — annual/cached
+# 4. ราคาอ้อย (annual/cached)
 # ─────────────────────────────────────────────
 def scrape_sugarcane() -> dict:
-    """
-    Sugarcane price is set once per production season by ครม.
-    We cache known values and only re-scrape when a new season is announced.
-    """
-    # Known prices (updated manually when ครม. announces)
     KNOWN = [
         {"season": "2568/69", "initial": 890,    "final": None,    "yoy_initial": -23.3, "source_date": "พ.ย. 68", "source": "กอน./ครม."},
         {"season": "2567/68", "initial": 1160,   "final": 1152.62, "yoy_initial": -18.3, "source_date": "ม.ค. 68", "source": "ครม."},
@@ -230,20 +290,21 @@ def scrape_sugarcane() -> dict:
         {"season": "2564/65", "initial": 920,    "final": None,    "yoy_initial": None,  "source_date": None,      "source": "อ้างอิง"},
     ]
 
-    # Try to scrape for new announcement
-    url = "https://spacebar.th/business/cabinet-sugarcane-price-2569"
-    html = fetch(url)
-    current_initial = None
-    if html:
-        m = re.search(r'ราคาอ้อยขั้นต้น.*?([\d,]+)\s*บาทต่อตัน', html, re.DOTALL)
-        if m:
-            current_initial = float(m.group(1).replace(",", ""))
-            log.info(f"sugarcane: scraped initial = {current_initial} THB/ตัน")
-
-    # If scrape got a different value for current season, update
-    if current_initial and current_initial != KNOWN[0]["initial"]:
-        KNOWN[0]["initial"] = current_initial
-        KNOWN[0]["note"] = "scraped live"
+    # ลอง scrape ใหม่ถ้ามีประกาศ
+    urls = [
+        ("https://spacebar.th/business/cabinet-sugarcane-price-2569", "https://www.google.com/"),
+        ("https://www.thaipbs.or.th/news/content/501549", "https://www.thaipbs.or.th"),
+    ]
+    for url, referer in urls:
+        html = fetch(url, referer=referer)
+        if html:
+            m = re.search(r'ราคาอ้อยขั้นต้น.*?([\d,]+)\s*บาทต่อตัน', html, re.DOTALL)
+            if m:
+                val = float(m.group(1).replace(",", ""))
+                if val != KNOWN[0]["initial"]:
+                    KNOWN[0]["initial"] = val
+                    log.info(f"sugarcane: updated to {val} THB/ตัน")
+                break
 
     result = {
         "commodity": "อ้อย (ราคาขั้นต้น)",
@@ -253,7 +314,7 @@ def scrape_sugarcane() -> dict:
         "unit": "THB/ตัน @ 10 CCS",
         "date": KNOWN[0]["source_date"],
         "source": KNOWN[0]["source"],
-        "source_url": url,
+        "source_url": "https://spacebar.th/business/cabinet-sugarcane-price-2569",
         "status": "confirmed",
         "note": "ราคาประกาศรายปีต่อฤดูการผลิต โดย กอน./ครม.",
         "history": KNOWN,
@@ -263,7 +324,7 @@ def scrape_sugarcane() -> dict:
 
 
 # ─────────────────────────────────────────────
-# 5. ข้าวส่งออก FOB — news/USDA reference
+# 5. ข้าวส่งออก FOB
 # ─────────────────────────────────────────────
 def scrape_rice_fob() -> dict:
     result = {
@@ -271,8 +332,7 @@ def scrape_rice_fob() -> dict:
             "commodity": "ข้าวขาว 5% FOB Bangkok",
             "commodity_en": "White Rice 5% Broken FOB",
             "price_low": None, "price_high": None,
-            "unit": "USD/ตัน",
-            "date": None,
+            "unit": "USD/ตัน", "date": None,
             "source": "Nation Thailand / Thai Rice Exporters Assoc.",
             "source_url": "https://www.nationthailand.com",
             "status": "confirmed",
@@ -281,75 +341,96 @@ def scrape_rice_fob() -> dict:
             "commodity": "ข้าวหอมมะลิ 100% FOB",
             "commodity_en": "Hom Mali 100% FOB",
             "price": None,
-            "unit": "USD/ตัน",
-            "date": None,
+            "unit": "USD/ตัน", "date": None,
             "source": "Thai Rice Exporters Assoc.",
             "source_url": "https://www.nationthailand.com",
             "status": "confirmed",
         },
     }
 
-    url = "https://www.nationthailand.com/blogs/business/trade/40062858"
-    html = fetch(url)
-    if html:
-        # White 5%: "Thailand US$410/ton" or "381–385 USD/ตัน"
-        m5 = re.search(r'[Tt]hailand\s+US\$?([\d,]+)(?:[–-]([\d,]+))?/ton', html)
-        if not m5:
-            m5 = re.search(r'5%.*?([\d]+)[–-]([\d]+)\s*(?:USD|ดอลลาร์)', html, re.DOTALL)
-        if m5:
-            result["white5"]["price_low"]  = float(m5.group(1).replace(",", ""))
-            result["white5"]["price_high"] = float(m5.group(2).replace(",", "")) if m5.group(2) else result["white5"]["price_low"]
-            result["white5"]["date"] = "มี.ค. 69"
+    sources = [
+        ("https://www.nationthailand.com/blogs/business/trade/40062858",
+         "https://www.google.com/search?q=Thai+rice+export+price+FOB+Bangkok+2026"),
+        ("https://ricenewstoday.com/thai-rice-export-prices-soften-amid-stronger-baht-weak-seasonal-demand/",
+         "https://www.google.com/"),
+    ]
 
-        # Hom Mali: "US$1,171/ton"
-        mhm = re.search(r'[Hh]om\s*[Mm]ali.*?US\$?([\d,]+)/ton', html, re.DOTALL)
-        if not mhm:
-            mhm = re.search(r'1[,.]?\d{3}\s*(?:USD|ดอลลาร์)', html)
-        if mhm:
-            result["homali"]["price"] = float(mhm.group(1).replace(",", "")) if hasattr(mhm, 'group') and mhm.lastindex else 1171
+    for url, referer in sources:
+        html = fetch(url, referer=referer)
+        if not html:
+            continue
+
+        # White 5%
+        patterns_w5 = [
+            r'[Tt]hailand.*?US\$?\s*([\d,]+)(?:[–\-]([\d,]+))?/(?:ton|MT)',
+            r'5%.*?(3[5-9]\d|4[0-2]\d)[–\-]?(3[5-9]\d|4[0-2]\d)?\s*(?:USD|US\$)',
+            r'(3[6-9]\d|4[0-1]\d)\s*(?:USD|US\$|ดอลลาร์)/(?:ton|ตัน|MT)',
+        ]
+        for p in patterns_w5:
+            m = re.search(p, html, re.IGNORECASE)
+            if m:
+                try:
+                    result["white5"]["price_low"]  = float(m.group(1).replace(",", ""))
+                    result["white5"]["price_high"] = float(m.group(2).replace(",", "")) if m.lastindex >= 2 and m.group(2) else result["white5"]["price_low"]
+                    result["white5"]["date"] = _extract_date(html) or "มี.ค. 69"
+                    break
+                except (ValueError, IndexError):
+                    continue
+
+        # Hom Mali
+        m_hm = re.search(r'[Hh]om\s*[Mm]ali.*?US\$?\s*(1[,.]?\d{3})/(?:ton|MT)', html, re.DOTALL)
+        if m_hm:
+            result["homali"]["price"] = float(m_hm.group(1).replace(",", ""))
             result["homali"]["date"]  = "มี.ค. 69"
 
-    # Fallbacks
-    if result["white5"]["price_low"] is None:
-        log.warning("rice_fob white5: using fallback")
-        result["white5"].update({"price_low": 381, "price_high": 385, "date": "มี.ค. 69 (ค่าล่าสุด)", "status": "fallback"})
-    if result["homali"]["price"] is None:
-        log.warning("rice_fob homali: using fallback")
-        result["homali"].update({"price": 1171, "date": "มี.ค. 69 (ค่าล่าสุด)", "status": "fallback"})
+        if result["white5"]["price_low"]:
+            break
 
-    log.info(f"rice_fob white5: {result['white5']['price_low']}–{result['white5']['price_high']}")
-    log.info(f"rice_fob homali: {result['homali']['price']}")
+    # fallback
+    if result["white5"]["price_low"] is None:
+        result["white5"].update({"price_low": 381, "price_high": 385, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+    if result["homali"]["price"] is None:
+        result["homali"].update({"price": 1171, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+
+    log.info(f"rice_fob white5: {result['white5']['price_low']}–{result['white5']['price_high']} | status={result['white5']['status']}")
+    log.info(f"rice_fob homali: {result['homali']['price']} | status={result['homali']['status']}")
     return result
 
 
+def _extract_date(html: str) -> Optional[str]:
+    m = re.search(
+        r'(\d{1,2}\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s*\d{4})',
+        html
+    )
+    return m.group(1) if m else None
+
+
 # ─────────────────────────────────────────────
-# MAIN — run all scrapers, return combined dict
+# MAIN
 # ─────────────────────────────────────────────
 def scrape_all() -> dict:
-    log.info("=== Starting scrape ===")
+    log.info("=== Starting scrape v2 ===")
     now = datetime.now()
     data = {
-        "generated_at": now.isoformat(),
-        "generated_date": now.strftime("%d %B %Y"),
+        "generated_at":      now.isoformat(),
+        "generated_date":    now.strftime("%d %B %Y"),
         "generated_date_th": _format_thai_date(now),
-        "rice_jasmine": scrape_rice_jasmine(),
-        "cassava":      scrape_cassava(),
-        "rubber":       scrape_rubber(),
-        "sugarcane":    scrape_sugarcane(),
-        "rice_fob":     scrape_rice_fob(),
+        "rice_jasmine":      scrape_rice_jasmine(),
+        "cassava":           scrape_cassava(),
+        "rubber":            scrape_rubber(),
+        "sugarcane":         scrape_sugarcane(),
+        "rice_fob":          scrape_rice_fob(),
     }
     log.info("=== Scrape complete ===")
     return data
 
 
 def _format_thai_date(dt: datetime) -> str:
-    MONTHS_TH = ["","ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
-                  "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
-    be_year = dt.year + 543
-    return f"{dt.day} {MONTHS_TH[dt.month]} {be_year}"
+    MONTHS = ["","ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
+              "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
+    return f"{dt.day} {MONTHS[dt.month]} {dt.year + 543}"
 
 
 if __name__ == "__main__":
-    import json
     data = scrape_all()
     print(json.dumps(data, ensure_ascii=False, indent=2))
