@@ -1,6 +1,1 @@
-# agri-price-dashboard dependencies
-# scraper.py uses only stdlib (urllib, re, json) — no extra packages needed
-# Add below if you want richer scraping later:
-# requests>=2.31
-# beautifulsoup4>=4.12
-# lxml>=5.0
+pdfminer.six>=20221105
