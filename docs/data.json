@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-03-26T03:52:18.823620",
-  "generated_date": "26 March 2026",
-  "generated_date_th": "26 มี.ค. 2569",
+  "generated_at": "2026-03-27T01:35:00.074762",
+  "generated_date": "27 March 2026",
+  "generated_date_th": "27 มี.ค. 2569",
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
     "commodity_en": "Jasmine Paddy Rice",
-    "price": null,
+    "price": 16850,
     "unit": "THB/ตัน",
-    "date": "25 มี.ค. 2569",
+    "date": "ค่าล่าสุดที่ทราบ",
     "source": "rakakaset.com (อ้าง OAE)",
     "source_url": "https://rakakaset.com/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7/",
     "history_30d": [],
-    "status": "confirmed"
+    "status": "fallback"
   },
   "cassava": {
     "cassava_fresh": {
       "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
       "commodity_en": "Fresh Cassava 30% Starch",
-      "price_low": null,
-      "price_high": null,
+      "price_low": 2.85,
+      "price_high": 3.05,
       "unit": "THB/กก.",
       "date": "25 มีนาคม 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
@@ -40,14 +40,13 @@
   "rubber": {
     "commodity": "ยางแผ่นรมควัน RSS3",
     "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 70.5,
-    "price_high": 71.56,
+    "price_low": 70.0,
+    "price_high": 78.0,
     "unit": "THB/กก.",
-    "date": "05 มี.ค. 69",
+    "date": "ค่าล่าสุดที่ทราบ",
     "source": "ฐานเศรษฐกิจ / กยท.",
-    "source_url": "https://www.thansettakij.com/economy/trade-agriculture/653068",
-    "status": "confirmed",
-    "note": "raot.co.th ต้องสมัครสมาชิก; อ้างจากรายงานข่าว"
+    "source_url": "https://www.thansettakij.com",
+    "status": "fallback"
   },
   "sugarcane": {
     "commodity": "อ้อย (ราคาขั้นต้น)",
@@ -110,7 +109,7 @@
       "price_low": 410.0,
       "price_high": 410.0,
       "unit": "USD/ตัน",
-      "date": "มี.ค. 69",
+      "date": "23 ก.พ. 2569",
       "source": "Nation Thailand / Thai Rice Exporters Assoc.",
       "source_url": "https://www.nationthailand.com",
       "status": "confirmed"
