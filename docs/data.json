@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-27T03:44:54.311195",
+  "generated_at": "2026-03-27T09:15:14.384217",
   "generated_date": "27 March 2026",
   "generated_date_th": "27 มี.ค. 2569",
   "rice_jasmine": {
@@ -20,7 +20,7 @@
       "price_low": 2.85,
       "price_high": 3.05,
       "unit": "THB/กก.",
-      "date": "25 มีนาคม 2569",
+      "date": "27 มีนาคม 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
@@ -31,7 +31,7 @@
       "price_low": 7.3,
       "price_high": 7.5,
       "unit": "THB/กก.",
-      "date": "25 มีนาคม 2569",
+      "date": "27 มีนาคม 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
@@ -123,6 +123,131 @@
       "source": "Thai Rice Exporters Assoc.",
       "source_url": "https://www.nationthailand.com",
       "status": "confirmed"
+    }
+  },
+  "rice_detail": {
+    "trea_fob": {
+      "date": "25 Mar     2026",
+      "source_url": "http://www.thairiceexporters.or.th/default_eng.htm",
+      "source": "Thai Rice Exporters Association (TREA)",
+      "scraped": true,
+      "items": [
+        {
+          "name_th": "parboiled 100%",
+          "name_en": "parboiled 100%",
+          "price": 129,
+          "unit": "USD/MT FOB"
+        }
+      ],
+      "comparison": [
+        {
+          "name": "Thailand 5%",
+          "price_str": "129",
+          "category": "White Rice",
+          "unit": "USD/MT"
+        },
+        {
+          "name": "Vietnam 5%",
+          "price_str": "129",
+          "category": "White Rice",
+          "unit": "USD/MT"
+        },
+        {
+          "name": "India 5%",
+          "price_str": "129",
+          "category": "White Rice",
+          "unit": "USD/MT"
+        },
+        {
+          "name": "Thailand Hommali",
+          "price_str": "129",
+          "category": "Fragrant Rice",
+          "unit": "USD/MT"
+        },
+        {
+          "name": "Vietnam Jasmine",
+          "price_str": "129",
+          "category": "Fragrant Rice",
+          "unit": "USD/MT"
+        }
+      ]
+    },
+    "thai_rice_mills": {
+      "date": "27032569",
+      "pdf_url": "http://www.thairicemillers.org/images/introc_1429264173/Pricerice27032569.pdf",
+      "source": "สมาคมโรงสีข้าวไทย",
+      "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
+      "scraped": true,
+      "milled_rice": [
+        {
+          "name_th": "ปลายข้าวหอมมะลิ (68/69)",
+          "name_en": "Hom Mali Broken (68/69)",
+          "price_low": 79,
+          "price_high": 79,
+          "unit": "THB/100กก."
+        },
+        {
+          "name_th": "ข้าวขาว 5%",
+          "name_en": "White Rice 5%",
+          "price_low": 3250,
+          "price_high": 3416,
+          "unit": "THB/100กก."
+        },
+        {
+          "name_th": "ข้าวเหนียว กข.6 อีสาน (68/69)",
+          "name_en": "Sticky Rice KKhaw 6 (68/69)",
+          "price_low": 11800,
+          "price_high": 12400,
+          "unit": "THB/100กก."
+        }
+      ],
+      "paddy_white": [],
+      "paddy_jasmine": [
+        {
+          "province": "บุรีรัมย์",
+          "price_low": 16500,
+          "price_high": 17200
+        },
+        {
+          "province": "ร้อยเอ็ด",
+          "price_low": 16000,
+          "price_high": 17000
+        },
+        {
+          "province": "อุบลราชธานี",
+          "price_low": 16500,
+          "price_high": 17000
+        },
+        {
+          "province": "ศรีสะเกษ",
+          "price_low": 16500,
+          "price_high": 17500
+        },
+        {
+          "province": "อุดรธานี",
+          "price_low": 10000,
+          "price_high": 11000
+        }
+      ],
+      "paddy_sticky": [
+        {
+          "province": "ขอนแก่น (68/69)",
+          "price_low": 11800,
+          "price_high": 12400
+        },
+        {
+          "province": "อุดรธานี (68/69)",
+          "price_low": 11500,
+          "price_high": 12200
+        }
+      ],
+      "paddy_white_stats": {},
+      "paddy_jasmine_stats": {
+        "avg": 15520,
+        "min": 10000,
+        "max": 17500
+      },
+      "paddy_pathum": []
     }
   }
 }
