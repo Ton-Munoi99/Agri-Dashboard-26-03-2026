@@ -35,16 +35,16 @@ def build_rice_detail_section(rice_data: dict) -> str:
         {
             "type": "ข้าวเปลือกเจ้า (ชื้น 15%)",
             "fob_usd":  None,
-            "dom_thb_range": f"{trm.get('paddy_white_min','')//100*100:,}–{trm.get('paddy_white_max',0):,} บาท/ตัน",
+            "dom_thb_range": f"{int(trm.get('paddy_white_min') or 0):,}–{int(trm.get('paddy_white_max') or 0):,} บาท/ตัน",
             "dom_src": "สมาคมโรงสีข้าวไทย",
-            "note": f"เฉลี่ยทุกจังหวัด ~{trm.get('paddy_white_avg',0):,} บาท/ตัน"
+            "note": f"เฉลี่ยทุกจังหวัด ~{int(trm.get('paddy_white_avg') or 0):,} บาท/ตัน"
         },
         {
             "type": "ข้าวเปลือกหอมมะลิ 68/69",
             "fob_usd":  None,
-            "dom_thb_range": f"{trm.get('paddy_jasmine_min',''):,}–{trm.get('paddy_jasmine_max',0):,} บาท/ตัน",
+            "dom_thb_range": f"{int(trm.get('paddy_jasmine_min') or 0):,}–{int(trm.get('paddy_jasmine_max') or 0):,} บาท/ตัน",
             "dom_src": "สมาคมโรงสีข้าวไทย",
-            "note": f"เฉลี่ยทุกจังหวัด ~{trm.get('paddy_jasmine_avg',0):,} บาท/ตัน"
+            "note": f"เฉลี่ยทุกจังหวัด ~{int(trm.get('paddy_jasmine_avg') or 0):,} บาท/ตัน"
         },
         {
             "type": "ข้าวนึ่ง 100%",
