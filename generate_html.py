@@ -158,6 +158,10 @@ def build_html(data: dict) -> str:
     rice_history_json = json.dumps(rj.get("history_30d", []), ensure_ascii=False)
     cane_history_json = json.dumps(cane.get("history", []),   ensure_ascii=False)
 
+    # ── Rice detail section (TREA + TRM) ──────────────
+    from generate_rice_section import build_rice_detail_section
+    rice_detail_section = build_rice_detail_section(data.get("rice_detail", {}))
+
 
     # Sugarcane history rows
     cane_rows = ""
@@ -454,6 +458,8 @@ body{{background:var(--bg);color:var(--text);font-family:var(--font);font-size:1
     </table>
   </div>
 
+{rice_detail_section}
+
   <div class="sec">สรุปและข้อจำกัด</div>
   <div class="summary-grid">
     <div class="info-box">
@@ -599,6 +605,7 @@ function exportExcel() {{
 if __name__ == "__main__":
     import argparse
     from scraper import scrape_all
+    from scraper_rice_detail import scrape_rice_detail
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", help="Path to existing JSON data file (skip scraping)")
@@ -610,7 +617,7 @@ if __name__ == "__main__":
             data = json.load(f)
     else:
         data = scrape_all()
-        # Save JSON snapshot
+        data["rice_detail"] = scrape_rice_detail()   # ← เพิ่มข้อมูลข้าวละเอียด
         snap_path = Path(args.out).parent / "data.json"
         snap_path.parent.mkdir(parents=True, exist_ok=True)
         with open(snap_path, "w", encoding="utf-8") as f:
