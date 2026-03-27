@@ -310,68 +310,160 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   </div>
 
 
-  <!-- ════════════════════════════════════════════════
-       SECTION: ราคาข้าวละเอียด
+  <!-- ══════════════════════════════════════════════════
+       SECTION A: ราคาข้าวส่งออก FOB
   ═══════════════════════════════════════════════════ -->
-  <div class="sec">ราคาข้าวส่งออก FOB — Thai Rice Exporters Association</div>
-  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:var(--mono)">
-    อัปเดต: 25 Mar     2026 | แหล่ง: <a href="http://www.thairiceexporters.or.th/default_eng.htm" style="color:var(--blue)">Thai Rice Exporters Association (TREA)</a>
-    &nbsp;|&nbsp; Unit: US Dollars per metric ton (milled rice basis), F.O.B. prices
+
+  <div style="
+          display:flex;align-items:center;gap:10px;
+          border-left:3px solid #38bdf8;
+          padding:8px 0 8px 14px;
+          margin:24px 0 10px;
+        ">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">📦 ราคาข้าวส่งออก FOB</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--mono)">ตลาดโลก · USD per Metric Ton · F.O.B. Bangkok · อัปเดต: 25 Mar     2026</div>
+          </div>
+        </div>
+
+  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px">
+    <span>แหล่ง: <a href="http://www.thairiceexporters.or.th/default_eng.htm" style="color:var(--blue)" target="_blank">Thai Rice Exporters Association (TREA)</a></span>
+    <span style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3);font-size:9px;padding:1px 7px;border-radius:3px;font-family:var(--mono);margin-left:8px">✓ scraped live</span>
   </div>
-  <div class="table-wrap" style="margin-bottom:18px">
+
+  <div class="table-wrap" style="margin-bottom:8px">
     <table class="price-table">
       <thead><tr>
-        <th>ชนิดข้าว (TH)</th>
+        <th>ชนิดข้าว</th>
         <th>Commodity (EN)</th>
-        <th>ราคา (USD/MT)</th>
+        <th style="text-align:right">ราคา</th>
         <th>หน่วย</th>
       </tr></thead>
       <tbody><tr>
-          <td>parboiled 100%</td>
-          <td style="font-size:10px;color:var(--muted)">parboiled 100%</td>
-          <td class="mono dn">129</td>
-          <td style="font-size:10px;color:var(--muted)">USD/MT FOB</td>
-        </tr></tbody>
+          <td colspan="4" style="
+            background:var(--bg3);
+            color:var(--blue);
+            font-size:10px;font-weight:600;letter-spacing:.06em;
+            text-transform:uppercase;padding:6px 14px;
+          ">ข้าวนึ่ง / Parboiled</td>
+        </tr><tr>
+              <td style="padding-left:20px">parboiled 100%</td>
+              <td style="font-size:10px;color:var(--muted)">parboiled 100%</td>
+              <td class="mono dn">129</td>
+              <td style="font-size:10px;color:var(--muted)">USD/MT</td>
+            </tr></tbody>
     </table>
   </div>
-
-  <div class="sec">ราคาข้าวในประเทศ — สมาคมโรงสีข้าวไทย</div>
-  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:var(--mono)">
-    อัปเดต: 27032569 | แหล่ง: <a href="http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19" style="color:var(--blue)">สมาคมโรงสีข้าวไทย</a>
-    &nbsp;|&nbsp; ราคาข้าวสารขายส่ง ส่งตลาดกรุงเทพ (บาท/100กก.)
+  <div style="font-size:10px;color:var(--faint);margin-bottom:24px;font-family:var(--mono)">
+    Unit: U.S. Dollars per metric ton (milled rice basis), F.O.B. prices
   </div>
-  <div class="table-wrap" style="margin-bottom:18px">
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION B: ราคาข้าวสาร ในประเทศ
+  ═══════════════════════════════════════════════════ -->
+
+  <div style="
+          display:flex;align-items:center;gap:10px;
+          border-left:3px solid #f59e0b;
+          padding:8px 0 8px 14px;
+          margin:24px 0 10px;
+        ">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">🏭 ราคาข้าวสาร ในประเทศ</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--mono)">ราคาขายส่ง ตลาดกรุงเทพ · THB/100กก. · อัปเดต: 27032569</div>
+          </div>
+        </div>
+
+  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px">
+    <span>แหล่ง: <a href="http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19" style="color:var(--blue)" target="_blank">สมาคมโรงสีข้าวไทย</a></span>
+    <span style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3);font-size:9px;padding:1px 7px;border-radius:3px;font-family:var(--mono);margin-left:8px">✓ scraped live</span>
+     | <a href="http://www.thairicemillers.org/images/introc_1429264173/Pricerice27032569.pdf" style="color:var(--blue)" target="_blank">⬇ PDF</a>
+  </div>
+
+  <div class="table-wrap" style="margin-bottom:24px">
     <table class="price-table">
       <thead><tr>
-        <th>ชนิดข้าว (TH)</th><th>Commodity (EN)</th>
-        <th>ราคา (THB/100กก.)</th><th>หน่วย</th>
+        <th>ชนิดข้าว</th>
+        <th>Commodity (EN)</th>
+        <th style="text-align:right">ราคา</th>
+        <th>หน่วย</th>
       </tr></thead>
       <tbody><tr>
-          <td>ปลายข้าวหอมมะลิ (68/69)</td>
-          <td style="font-size:10px;color:var(--muted)">Hom Mali Broken (68/69)</td>
-          <td class="mono">79</td>
-          <td style="font-size:10px;color:var(--muted)">THB/100กก.</td>
+          <td colspan="4" style="
+            background:var(--bg3);
+            color:var(--amber);
+            font-size:10px;font-weight:600;letter-spacing:.06em;
+            text-transform:uppercase;padding:6px 14px;
+          ">หอมมะลิ / Fragrant</td>
         </tr><tr>
-          <td>ข้าวขาว 5%</td>
-          <td style="font-size:10px;color:var(--muted)">White Rice 5%</td>
-          <td class="mono">3,250–3,416</td>
-          <td style="font-size:10px;color:var(--muted)">THB/100กก.</td>
+              <td style="padding-left:20px">ปลายข้าวหอมมะลิ (68/69)</td>
+              <td style="font-size:10px;color:var(--muted)">Hom Mali Broken (68/69)</td>
+              <td class="mono">79</td>
+              <td style="font-size:10px;color:var(--muted)">THB/100กก.</td>
+            </tr><tr>
+          <td colspan="4" style="
+            background:var(--bg3);
+            color:var(--amber);
+            font-size:10px;font-weight:600;letter-spacing:.06em;
+            text-transform:uppercase;padding:6px 14px;
+          ">ข้าวขาว / White</td>
         </tr><tr>
-          <td>ข้าวเหนียว กข.6 อีสาน (68/69)</td>
-          <td style="font-size:10px;color:var(--muted)">Sticky Rice KKhaw 6 (68/69)</td>
-          <td class="mono">11,800–12,400</td>
-          <td style="font-size:10px;color:var(--muted)">THB/100กก.</td>
-        </tr></tbody>
+              <td style="padding-left:20px">ข้าวขาว 5%</td>
+              <td style="font-size:10px;color:var(--muted)">White Rice 5%</td>
+              <td class="mono">3,250–3,416</td>
+              <td style="font-size:10px;color:var(--muted)">THB/100กก.</td>
+            </tr><tr>
+          <td colspan="4" style="
+            background:var(--bg3);
+            color:var(--amber);
+            font-size:10px;font-weight:600;letter-spacing:.06em;
+            text-transform:uppercase;padding:6px 14px;
+          ">ข้าวเหนียว / Glutinous</td>
+        </tr><tr>
+              <td style="padding-left:20px">ข้าวเหนียว กข.6 อีสาน (68/69)</td>
+              <td style="font-size:10px;color:var(--muted)">Sticky Rice KKhaw 6 (68/69)</td>
+              <td class="mono">11,800–12,400</td>
+              <td style="font-size:10px;color:var(--muted)">THB/100กก.</td>
+            </tr></tbody>
     </table>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">
+  <!-- ══════════════════════════════════════════════════
+       SECTION C: ราคาข้าวเปลือก รายจังหวัด
+  ═══════════════════════════════════════════════════ -->
+
+  <div style="
+          display:flex;align-items:center;gap:10px;
+          border-left:3px solid #22c55e;
+          padding:8px 0 8px 14px;
+          margin:24px 0 10px;
+        ">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">🌾 ราคาข้าวเปลือก รายจังหวัด</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--mono)">THB/ตัน · ชื้น 15% · อัปเดต: 27032569</div>
+          </div>
+        </div>
+
+  <div style="font-size:11px;color:var(--muted);margin-bottom:12px">
+    แหล่ง: <a href="http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19" style="color:var(--blue)" target="_blank">สมาคมโรงสีข้าวไทย</a>
+    <span style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.3);font-size:9px;padding:1px 7px;border-radius:3px;font-family:var(--mono);margin-left:8px">✓ scraped live</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px">
 
     <div>
-      <div class="sec" style="margin-top:0">ข้าวเปลือกหอมมะลิ 68/69 — รายจังหวัด (ชื้น 15%)</div>
+      <div style="font-size:11px;font-weight:600;color:var(--green);margin-bottom:6px;
+                  display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span>
+        ข้าวเปลือกหอมมะลิ (68/69) — ชื้น 15%
+      </div>
       <div class="table-wrap">
         <table class="price-table">
-          <thead><tr><th>จังหวัด</th><th>ต่ำสุด–สูงสุด (THB/ตัน)</th><th>เฉลี่ย</th></tr></thead>
+          <thead><tr>
+            <th>จังหวัด</th>
+            <th>ช่วงราคา (THB/ตัน)</th>
+            <th>เฉลี่ย</th>
+          </tr></thead>
           <tbody><tr>
           <td>บุรีรัมย์</td>
           <td class="mono">16,500–17,200</td>
@@ -395,65 +487,94 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
         </tr></tbody>
         </table>
       </div>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px;font-family:var(--mono)">
-        เฉลี่ยทั้งประเทศ: <span style="color:var(--green);font-weight:500">~0 บาท/ตัน</span>
-        &nbsp;| ช่วง: 0–0
+      <div style="font-size:10px;color:var(--muted);margin-top:6px;font-family:var(--mono);
+                  background:var(--bg3);padding:6px 10px;border-radius:4px">
+        เฉลี่ยทั้งประเทศ: <span style="color:var(--green);font-weight:600">~15,520</span> บาท/ตัน
+        &nbsp;·&nbsp; ช่วง: 10,000–17,500
       </div>
     </div>
 
     <div>
-      <div class="sec" style="margin-top:0">ข้าวเปลือกเจ้า ชื้น 15% — รายจังหวัด</div>
+      <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;
+                  display:flex;align-items:center;gap:6px">
+        <span style="width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block"></span>
+        ข้าวเปลือกเจ้า — ชื้น 15%
+      </div>
       <div class="table-wrap">
         <table class="price-table">
-          <thead><tr><th>จังหวัด</th><th>ต่ำสุด–สูงสุด (THB/ตัน)</th></tr></thead>
-          <tbody></tbody>
+          <thead><tr>
+            <th>จังหวัด</th>
+            <th>ช่วงราคา (THB/ตัน)</th>
+          </tr></thead>
+          <tbody><tr><td colspan="2" style="color:var(--faint);text-align:center">ไม่มีข้อมูล</td></tr></tbody>
         </table>
       </div>
-      <div style="font-size:10px;color:var(--muted);margin-top:6px;font-family:var(--mono)">
-        เฉลี่ยทั้งประเทศ: <span style="color:var(--text);font-weight:500">~0 บาท/ตัน</span>
-        &nbsp;| ช่วง: 0–0
+      <div style="font-size:10px;color:var(--muted);margin-top:6px;font-family:var(--mono);
+                  background:var(--bg3);padding:6px 10px;border-radius:4px">
+        เฉลี่ยทั้งประเทศ: <span style="color:var(--text);font-weight:600">~0</span> บาท/ตัน
+        &nbsp;·&nbsp; ช่วง: 0–0
       </div>
     </div>
 
   </div>
 
-  <div class="sec">ตาราง Match — FOB ส่งออก vs ราคาในประเทศ (ชนิดเดียวกัน)</div>
-  <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
-    เปรียบเทียบราคาข้าวชนิดเดียวกัน: ราคา FOB ตลาดโลก (USD/MT) vs ราคาในประเทศ (THB)
-  </div>
+  <div style="margin-bottom:24px"><div style="font-size:11px;font-weight:600;color:var(--amber);margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block"></span>ข้าวเปลือกเหนียว กข.6 — ชื้น 15%</div><div class="table-wrap"><table class="price-table"><thead><tr><th>จังหวัด</th><th>ช่วงราคา (THB/ตัน)</th></tr></thead><tbody><tr>
+          <td>ขอนแก่น (68/69)</td>
+          <td class="mono">11,800–12,400</td>
+        </tr><tr>
+          <td>อุดรธานี (68/69)</td>
+          <td class="mono">11,500–12,200</td>
+        </tr></tbody></table></div></div>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION D: ตาราง Match — FOB vs ในประเทศ
+  ═══════════════════════════════════════════════════ -->
+
+  <div style="
+          display:flex;align-items:center;gap:10px;
+          border-left:3px solid #8b5cf6;
+          padding:8px 0 8px 14px;
+          margin:24px 0 10px;
+        ">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">🔄 เปรียบเทียบ — ราคาส่งออก FOB vs ราคาในประเทศ</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--mono)">ข้าวชนิดเดียวกัน เปรียบเทียบ USD/MT (FOB) กับ THB/100กก. หรือ THB/ตัน (ในประเทศ)</div>
+          </div>
+        </div>
+
   <div class="table-wrap" style="margin-bottom:28px">
     <table class="price-table">
       <thead><tr>
         <th>ชนิดข้าว</th>
-        <th>ราคาส่งออก FOB (TREA)</th>
-        <th>ราคาในประเทศ (สมาคมโรงสีฯ)</th>
+        <th>ราคาส่งออก FOB <span style="color:var(--blue)">(TREA)</span></th>
+        <th>ราคาในประเทศ <span style="color:var(--amber)">(สมาคมโรงสีฯ)</span></th>
         <th>หมายเหตุ</th>
       </tr></thead>
       <tbody><tr>
-          <td style="font-weight:500">ข้าวหอมมะลิ Premium (68/69)</td>
+          <td style="font-weight:500">ข้าวหอมมะลิ 68/69</td>
           <td><span style="color:var(--faint)">—</span></td>
-          <td class="mono">3,250–3,416 บาท/100กก.</td>
-          <td style="font-size:10px;color:var(--muted)">ราคาในประเทศ = ข้าวสาร, FOB = ส่งออก</td>
+          <td class="mono">79 THB/100กก.</td>
+          <td style="font-size:10px;color:var(--muted)">ข้าวสารในประเทศ (THB/100กก.) vs ส่งออก FOB (USD/MT)</td>
         </tr><tr>
           <td style="font-weight:500">ข้าวขาว 5%</td>
           <td><span style="color:var(--faint)">—</span></td>
-          <td class="mono">1,060–1,080 บาท/100กก.</td>
-          <td style="font-size:10px;color:var(--muted)">ราคาในประเทศ = ข้าวสาร</td>
-        </tr><tr>
-          <td style="font-weight:500">ข้าวเปลือกเจ้า (ชื้น 15%)</td>
-          <td><span style="color:var(--faint)">—</span></td>
-          <td class="mono">0–0 บาท/ตัน</td>
-          <td style="font-size:10px;color:var(--muted)">เฉลี่ยทุกจังหวัด ~0 บาท/ตัน</td>
-        </tr><tr>
-          <td style="font-weight:500">ข้าวเปลือกหอมมะลิ 68/69</td>
-          <td><span style="color:var(--faint)">—</span></td>
-          <td class="mono">0–0 บาท/ตัน</td>
-          <td style="font-size:10px;color:var(--muted)">เฉลี่ยทุกจังหวัด ~0 บาท/ตัน</td>
+          <td class="mono">3,250–3,416 THB/100กก.</td>
+          <td style="font-size:10px;color:var(--muted)">ข้าวสาร 5% ในประเทศ vs FOB</td>
         </tr><tr>
           <td style="font-weight:500">ข้าวนึ่ง 100%</td>
           <td><span style="color:var(--faint)">—</span></td>
-          <td class="mono">1,110–1,130 บาท/100กก.</td>
-          <td style="font-size:10px;color:var(--muted)">ราคาในประเทศ = ข้าวนึ่ง 100% สีอ่อน</td>
+          <td class="mono">—</td>
+          <td style="font-size:10px;color:var(--muted)">ข้าวนึ่งในประเทศ vs FOB</td>
+        </tr><tr>
+          <td style="font-weight:500">ข้าวเปลือกเจ้า (เฉลี่ย)</td>
+          <td><span style="color:var(--faint)">—</span></td>
+          <td class="mono">—</td>
+          <td style="font-size:10px;color:var(--muted)">ช่วง 0–0 | ชื้น 15%</td>
+        </tr><tr>
+          <td style="font-weight:500">ข้าวเปลือกหอมมะลิ (เฉลี่ย)</td>
+          <td><span style="color:var(--faint)">—</span></td>
+          <td class="mono">~15,520 THB/ตัน</td>
+          <td style="font-size:10px;color:var(--muted)">ช่วง 10,000–17,500 | ชื้น 15%</td>
         </tr></tbody>
     </table>
   </div>
@@ -491,7 +612,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   <div class="footer-src">3. <a href="https://www.thansettakij.com">ฐานเศรษฐกิจ</a> / กยท. — ยาง RSS3</div>
   <div class="footer-src">4. <a href="https://spacebar.th/business/cabinet-sugarcane-price-2569">spacebar.th</a> / <a href="https://www.thaipbs.or.th">ThaiPBS</a> — ราคาอ้อย</div>
   <div class="footer-src">5. <a href="https://www.nationthailand.com">Nation Thailand</a> / USDA — ข้าว FOB</div>
-  <div class="footer-src" style="color:var(--faint)">Generated: 2026-03-27T09:15 UTC · agri-price-intel</div>
+  <div class="footer-src" style="color:var(--faint)">Generated: 2026-03-27T09:32 UTC · agri-price-intel</div>
   <div style="margin-left:auto">
     <button onclick="exportExcel()" id="btn-export" style="
       background:var(--green-dim);border:1px solid rgba(34,197,94,0.4);
