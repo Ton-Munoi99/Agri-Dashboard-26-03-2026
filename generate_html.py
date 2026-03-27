@@ -143,6 +143,22 @@ def build_html(data: dict) -> str:
     rub_labels,  rub_vals  = rubber_chart_data()
     cane_labels, cane_vals = cane_chart_data(data)
 
+    # ── JSON data for SheetJS Export ──────────────
+    price_rows = [
+        {"name_th": "ข้าวเปลือกหอมมะลิ 105",     "name_en": "Jasmine Paddy Rice",        "price": rj_price,                     "unit": "THB/ตัน", "wow": f"{wow_rj:+.1f}%" if wow_rj else "~", "mom_yoy": f"{mom_rj:+.1f}% MoM" if mom_rj else "~", "trend": "↑ RISING" if tc_rj=="up" else "↓ FALLING" if tc_rj=="dn" else "→ SIDEWAYS", "date": rj.get("date",""),           "status": rj.get("status","confirmed"),           "source": rj["source"]},
+        {"name_th": "ข้าวเปลือกเจ้า ชื้น 15%",    "name_en": "White Paddy 15%",           "price": "7,200-8,000",                "unit": "THB/ตัน", "wow": "~", "mom_yoy": "~", "trend": "→ SIDEWAYS", "date": "ก.พ. 69",                   "status": "confirmed",                            "source": "สมาคมโรงสีข้าวไทย"},
+        {"name_th": "ข้าวขาว 5% FOB Bangkok",     "name_en": "White Rice 5% FOB",         "price": price_range(w5_low, w5_high), "unit": "USD/ตัน", "wow": "~", "mom_yoy": "-7.0% MoM", "trend": "↓ FALLING",  "date": rfob["white5"].get("date",""), "status": rfob["white5"].get("status","confirmed"), "source": rfob["white5"]["source"]},
+        {"name_th": "ข้าวหอมมะลิ 100% FOB",       "name_en": "Hom Mali 100% FOB",         "price": fmt(hm_price, 0),             "unit": "USD/ตัน", "wow": "~", "mom_yoy": "~",         "trend": "→ SIDEWAYS", "date": rfob["homali"].get("date",""),  "status": rfob["homali"].get("status","confirmed"), "source": rfob["homali"]["source"]},
+        {"name_th": "หัวมันสด เชื้อแป้ง 30%",     "name_en": "Fresh Cassava 30% Starch",  "price": price_range(cf_plow, cf_phigh),"unit":"THB/กก.", "wow": "~", "mom_yoy": "~",         "trend": "→ SIDEWAYS", "date": cass["cassava_fresh"].get("date",""), "status": cass["cassava_fresh"].get("status","confirmed"), "source": "nettathai.org"},
+        {"name_th": "มันเส้น (โกดังอยุธยา)",       "name_en": "Cassava Chips Ayutthaya",   "price": price_range(cc_plow, cc_phigh),"unit":"THB/กก.", "wow": "~", "mom_yoy": "~",         "trend": "→ SIDEWAYS", "date": cass["cassava_chips"].get("date",""), "status": cass["cassava_chips"].get("status","confirmed"), "source": "nettathai.org"},
+        {"name_th": "ยางแผ่นรมควัน RSS3",          "name_en": "Rubber RSS3 Domestic",      "price": price_range(rub_low, rub_high),"unit":"THB/กก.", "wow": "~", "mom_yoy": "+7.0% MoM", "trend": "↑ RISING",   "date": rub.get("date",""),           "status": rub.get("status","confirmed"),           "source": rub["source"]},
+        {"name_th": f"อ้อย ขั้นต้น {cane.get('current_season','')}", "name_en": "Sugarcane Initial Price", "price": fmt(cane_init, 0), "unit": "THB/ตัน", "wow": "annual", "mom_yoy": "-23.3% YoY", "trend": "↓↓ BEARISH", "date": f"{cane.get('date','')} (ครม.)", "status": "confirmed", "source": cane["source"]},
+    ]
+    price_data_json   = json.dumps(price_rows, ensure_ascii=False)
+    rice_history_json = json.dumps(rj.get("history_30d", []), ensure_ascii=False)
+    cane_history_json = json.dumps(cane.get("history", []),   ensure_ascii=False)
+
+
     # Sugarcane history rows
     cane_rows = ""
     for h in cane.get("history", []):
@@ -471,9 +487,22 @@ body{{background:var(--bg);color:var(--text);font-family:var(--font);font-size:1
   <div class="footer-src">4. <a href="https://spacebar.th/business/cabinet-sugarcane-price-2569">spacebar.th</a> / <a href="https://www.thaipbs.or.th">ThaiPBS</a> — ราคาอ้อย</div>
   <div class="footer-src">5. <a href="https://www.nationthailand.com">Nation Thailand</a> / USDA — ข้าว FOB</div>
   <div class="footer-src" style="color:var(--faint)">Generated: {data.get('generated_at','')[:16]} UTC · agri-price-intel</div>
+  <div style="margin-left:auto">
+    <button onclick="exportExcel()" id="btn-export" style="
+      background:var(--green-dim);border:1px solid rgba(34,197,94,0.4);
+      color:var(--green);font-family:var(--mono);font-size:11px;
+      padding:7px 16px;border-radius:4px;cursor:pointer;
+      transition:background .2s;display:flex;align-items:center;gap:7px">
+      <span style="font-size:14px">⬇</span> Export Excel
+    </button>
+  </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
+
+/* ── Chart.js ───────────────────────────────── */
 const G='rgba(255,255,255,0.06)',T='rgba(255,255,255,0.35)';
 function mk(id,lbl,dat,col,unit){{
   const c=document.getElementById(id);if(!c)return;
@@ -497,6 +526,69 @@ mk('c_rice',{rice_labels},{rice_vals},'#22c55e','บาท/ตัน');
 mk('c_fob',{fob_labels},{fob_vals},'#f43f5e','USD/ตัน');
 mk('c_rubber',{rub_labels},{rub_vals},'#22c55e','บาท/กก.');
 mk('c_cane',{cane_labels},{cane_vals},'#f43f5e','บาท/ตัน');
+
+/* ── Export Excel (SheetJS) ─────────────────── */
+const PRICE_DATA = {price_data_json};
+const HISTORY_RICE = {rice_history_json};
+const HISTORY_CANE = {cane_history_json};
+const GEN_DATE = "{gen}";
+
+function exportExcel() {{
+  const btn = document.getElementById('btn-export');
+  btn.textContent = '⏳ กำลังสร้าง...';
+  btn.disabled = true;
+
+  try {{
+    const wb = XLSX.utils.book_new();
+
+    /* ── Sheet 1: ราคาวันนี้ ── */
+    const s1_rows = [
+      ["สินค้า (TH)", "Commodity (EN)", "ราคาปัจจุบัน", "หน่วย", "WoW %", "MoM / YoY %", "Trend", "วันที่ข้อมูล", "สถานะ", "แหล่งข้อมูล"]
+    ];
+    PRICE_DATA.forEach(r => s1_rows.push([r.name_th, r.name_en, r.price, r.unit, r.wow, r.mom_yoy, r.trend, r.date, r.status, r.source]));
+    const ws1 = XLSX.utils.aoa_to_sheet(s1_rows);
+    ws1['!cols'] = [{{wch:30}},{{wch:28}},{{wch:18}},{{wch:12}},{{wch:12}},{{wch:16}},{{wch:14}},{{wch:20}},{{wch:12}},{{wch:40}}];
+    XLSX.utils.book_append_sheet(wb, ws1, "ราคาวันนี้");
+
+    /* ── Sheet 2: ราคารายวัน (ข้าว 30 วัน) ── */
+    const s2_rows = [["วันที่", "ราคาเฉลี่ย (THB/ตัน)", "หมายเหตุ"]];
+    HISTORY_RICE.forEach(r => s2_rows.push([r.date, r.avg, "rakakaset.com (OAE)"]));
+    if (s2_rows.length === 1) s2_rows.push(["ไม่มีข้อมูลรายวัน", "N/A", "scraper ดึงข้อมูลไม่ได้"]);
+    const ws2 = XLSX.utils.aoa_to_sheet(s2_rows);
+    ws2['!cols'] = [{{wch:18}},{{wch:24}},{{wch:30}}];
+    XLSX.utils.book_append_sheet(wb, ws2, "ข้าว-รายวัน 30d");
+
+    /* ── Sheet 3: ราคาอ้อยรายปี ── */
+    const s3_rows = [["ฤดูการผลิต", "ราคาขั้นต้น (THB/ตัน)", "ราคาขั้นสุดท้าย (THB/ตัน)", "YoY ขั้นต้น (%)", "แหล่ง"]];
+    HISTORY_CANE.forEach(r => s3_rows.push([r.season, r.initial, r.final ?? "รอประกาศ", r.yoy ?? "—", r.source]));
+    const ws3 = XLSX.utils.aoa_to_sheet(s3_rows);
+    ws3['!cols'] = [{{wch:16}},{{wch:24}},{{wch:28}},{{wch:18}},{{wch:30}}];
+    XLSX.utils.book_append_sheet(wb, ws3, "อ้อย-รายปี");
+
+    /* ── Sheet 4: แหล่งข้อมูล ── */
+    const s4_rows = [
+      ["แหล่งข้อมูล", "URL", "ครอบคลุม", "ความถี่"],
+      ["rakakaset.com (OAE)", "https://rakakaset.com/ข้าว/", "ข้าวหอมมะลิ 105", "รายวัน"],
+      ["nettathai.org", "https://www.nettathai.org/2012-02-06-06-49-09.html", "หัวมันสด + มันเส้น", "ทุก 2-3 วัน"],
+      ["ฐานเศรษฐกิจ / กยท.", "https://www.thansettakij.com", "ยาง RSS3", "รายวัน (ข่าว)"],
+      ["กอน./สอน./ครม.", "https://spacebar.th/business/cabinet-sugarcane-price-2569", "ราคาอ้อย", "รายปีการผลิต"],
+      ["Nation Thailand / USDA", "https://www.nationthailand.com", "ข้าวส่งออก FOB", "รายสัปดาห์"],
+    ];
+    const ws4 = XLSX.utils.aoa_to_sheet(s4_rows);
+    ws4['!cols'] = [{{wch:30}},{{wch:55}},{{wch:30}},{{wch:20}}];
+    XLSX.utils.book_append_sheet(wb, ws4, "แหล่งข้อมูล");
+
+    /* ── Download ── */
+    const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+    XLSX.writeFile(wb, `agri_prices_${{dateStr}}.xlsx`);
+
+  }} catch(e) {{
+    alert('Export ไม่สำเร็จ: ' + e.message);
+  }} finally {{
+    btn.innerHTML = '<span style="font-size:14px">⬇</span> Export Excel';
+    btn.disabled = false;
+  }}
+}}
 </script>
 </body>
 </html>"""
