@@ -89,7 +89,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
 <header class="header">
   <div>
     <h1>🌾 ราคาพืชเศรษฐกิจไทย <span>/ Agri Price Intel</span></h1>
-    <div class="header-sub">ข้าว · มันสำปะหลัง · ยางพารา · อ้อย &nbsp;|&nbsp; อัปเดต: 27 มี.ค. 2569</div>
+    <div class="header-sub">ข้าว · มันสำปะหลัง · ยางพารา · อ้อย &nbsp;|&nbsp; อัปเดต: 28 มี.ค. 2569</div>
   </div>
   <div style="text-align:right">
     <div class="live-badge"><span class="live-dot"></span>Auto-updated daily</div>
@@ -612,7 +612,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14
   <div class="footer-src">3. <a href="https://www.thansettakij.com">ฐานเศรษฐกิจ</a> / กยท. — ยาง RSS3</div>
   <div class="footer-src">4. <a href="https://spacebar.th/business/cabinet-sugarcane-price-2569">spacebar.th</a> / <a href="https://www.thaipbs.or.th">ThaiPBS</a> — ราคาอ้อย</div>
   <div class="footer-src">5. <a href="https://www.nationthailand.com">Nation Thailand</a> / USDA — ข้าว FOB</div>
-  <div class="footer-src" style="color:var(--faint)">Generated: 2026-03-27T09:32 UTC · agri-price-intel</div>
+  <div class="footer-src" style="color:var(--faint)">Generated: 2026-03-28T03:31 UTC · agri-price-intel</div>
   <div style="margin-left:auto">
     <button onclick="exportExcel()" id="btn-export" style="
       background:var(--green-dim);border:1px solid rgba(34,197,94,0.4);
@@ -657,7 +657,7 @@ mk('c_cane',["2564/65", "2565/66", "2566/67", "2567/68", "2568/69"],[920, 1080, 
 const PRICE_DATA = [{"name_th": "ข้าวเปลือกหอมมะลิ 105", "name_en": "Jasmine Paddy Rice", "price": "16,850", "unit": "THB/ตัน", "wow": "~", "mom_yoy": "~", "trend": "→ SIDEWAYS", "date": "ค่าล่าสุดที่ทราบ", "status": "fallback", "source": "rakakaset.com (อ้าง OAE)"}, {"name_th": "ข้าวเปลือกเจ้า ชื้น 15%", "name_en": "White Paddy 15%", "price": "7,200-8,000", "unit": "THB/ตัน", "wow": "~", "mom_yoy": "~", "trend": "→ SIDEWAYS", "date": "ก.พ. 69", "status": "confirmed", "source": "สมาคมโรงสีข้าวไทย"}, {"name_th": "ข้าวขาว 5% FOB Bangkok", "name_en": "White Rice 5% FOB", "price": "410.00", "unit": "USD/ตัน", "wow": "~", "mom_yoy": "-7.0% MoM", "trend": "↓ FALLING", "date": "23 ก.พ. 2569", "status": "confirmed", "source": "Nation Thailand / Thai Rice Exporters Assoc."}, {"name_th": "ข้าวหอมมะลิ 100% FOB", "name_en": "Hom Mali 100% FOB", "price": "1,171", "unit": "USD/ตัน", "wow": "~", "mom_yoy": "~", "trend": "→ SIDEWAYS", "date": "มี.ค. 69", "status": "confirmed", "source": "Thai Rice Exporters Assoc."}, {"name_th": "หัวมันสด เชื้อแป้ง 30%", "name_en": "Fresh Cassava 30% Starch", "price": "2.85–3.05", "unit": "THB/กก.", "wow": "~", "mom_yoy": "~", "trend": "→ SIDEWAYS", "date": "27 มีนาคม 2569", "status": "confirmed", "source": "nettathai.org"}, {"name_th": "มันเส้น (โกดังอยุธยา)", "name_en": "Cassava Chips Ayutthaya", "price": "7.30–7.50", "unit": "THB/กก.", "wow": "~", "mom_yoy": "~", "trend": "→ SIDEWAYS", "date": "27 มีนาคม 2569", "status": "confirmed", "source": "nettathai.org"}, {"name_th": "ยางแผ่นรมควัน RSS3", "name_en": "Rubber RSS3 Domestic", "price": "70.00–78.00", "unit": "THB/กก.", "wow": "~", "mom_yoy": "+7.0% MoM", "trend": "↑ RISING", "date": "ค่าล่าสุดที่ทราบ", "status": "fallback", "source": "ฐานเศรษฐกิจ / กยท."}, {"name_th": "อ้อย ขั้นต้น 2568/69", "name_en": "Sugarcane Initial Price", "price": "890", "unit": "THB/ตัน", "wow": "annual", "mom_yoy": "-23.3% YoY", "trend": "↓↓ BEARISH", "date": "พ.ย. 68 (ครม.)", "status": "confirmed", "source": "กอน./ครม."}];
 const HISTORY_RICE = [];
 const HISTORY_CANE = [{"season": "2568/69", "initial": 890, "final": null, "yoy_initial": -23.3, "source_date": "พ.ย. 68", "source": "กอน./ครม."}, {"season": "2567/68", "initial": 1160, "final": 1152.62, "yoy_initial": -18.3, "source_date": "ม.ค. 68", "source": "ครม."}, {"season": "2566/67", "initial": 1420, "final": 1404.17, "yoy_initial": 31.5, "source_date": "ก.พ. 68", "source": "ครม."}, {"season": "2565/66", "initial": 1080, "final": 1197.53, "yoy_initial": null, "source_date": null, "source": "ThaiPBS"}, {"season": "2564/65", "initial": 920, "final": null, "yoy_initial": null, "source_date": null, "source": "อ้างอิง"}];
-const GEN_DATE = "27 มี.ค. 2569";
+const GEN_DATE = "28 มี.ค. 2569";
 
 function exportExcel() {
   const btn = document.getElementById('btn-export');
