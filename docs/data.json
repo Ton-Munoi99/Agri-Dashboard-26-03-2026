@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T03:54:20.962283",
+  "generated_at": "2026-03-30T10:25:24.320694",
   "generated_date": "30 March 2026",
   "generated_date_th": "30 มี.ค. 2569",
   "rice_jasmine": {
@@ -20,7 +20,7 @@
       "price_low": 2.85,
       "price_high": 3.05,
       "unit": "THB/กก.",
-      "date": "27 มีนาคม 2569",
+      "date": "30 มีนาคม 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
@@ -28,10 +28,10 @@
     "cassava_chips": {
       "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
       "commodity_en": "Cassava Chips Ayutthaya",
-      "price_low": 7.3,
-      "price_high": 7.5,
+      "price_low": 7.5,
+      "price_high": 7.8,
       "unit": "THB/กก.",
-      "date": "27 มีนาคม 2569",
+      "date": "30 มีนาคม 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
