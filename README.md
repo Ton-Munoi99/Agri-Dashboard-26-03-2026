@@ -52,7 +52,7 @@ git push -u origin main
 agri-price-dashboard/
 ├── scraper.py          ← ดึงราคาจาก rakakaset, nettathai, ฯลฯ
 ├── generate_html.py    ← แปลงข้อมูลเป็น HTML dashboard
-├── requirements.txt    ← Python dependencies (ใช้ stdlib เท่านั้น)
+├── requirements.txt    ← Python dependencies (pdfminer.six สำหรับ scraper_rice_detail.py)
 ├── .github/
 │   └── workflows/
 │       └── daily.yml   ← GitHub Actions: รันทุกวัน 08:00 ICT
@@ -93,7 +93,7 @@ KNOWN = [
 ## รัน manual (local)
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt   # ติดตั้ง pdfminer.six (ใช้โดย scraper_rice_detail.py)
 python generate_html.py         # scrape + generate docs/index.html
 python generate_html.py --data docs/data.json  # ใช้ข้อมูลเก่า (ไม่ scrape)
 open docs/index.html

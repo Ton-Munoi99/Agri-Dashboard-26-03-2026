@@ -71,32 +71,56 @@ def fetch(url: str, timeout: int = 20, referer: str = "https://www.google.com/")
 # 1. ข้าวเปลือกหอมมะลิ 105 — rakakaset.com
 # ─────────────────────────────────────────────
 def scrape_rice_jasmine() -> dict:
-    url = "https://rakakaset.com/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7/"
     result = {
         "commodity": "ข้าวเปลือกหอมมะลิ 105",
         "commodity_en": "Jasmine Paddy Rice",
         "price": None, "unit": "THB/ตัน",
         "date": None,
-        "source": "rakakaset.com (อ้าง OAE)",
-        "source_url": url,
+        "source": "rakakaset.com / สมาคมโรงสีข้าวไทย (อ้าง OAE)",
+        "source_url": "https://rakakaset.com/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7/",
         "history_30d": [],
         "status": "confirmed",
     }
 
-    html = fetch(url, referer="https://www.google.com/search?q=ราคาข้าวเปลือกวันนี้")
-    if not html:
-        # fallback: ลอง OAE โดยตรง
-        html = fetch("https://www.oae.go.th/assets/portals/1/files/price/rice_price.pdf")
+    # ลองหลาย URL — เรียงตามความน่าเชื่อถือ
+    sources = [
+        (
+            "https://rakakaset.com/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7/",
+            "https://www.google.com/search?q=ราคาข้าวเปลือกหอมมะลิวันนี้",
+        ),
+        (
+            "https://www.thairicemillers.com/rice-price/",
+            "https://www.google.com/search?q=สมาคมโรงสีข้าวไทย+ราคาข้าวเปลือก",
+        ),
+        (
+            "https://www.oae.go.th/view/1/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%AA%E0%B8%B4%E0%B8%99%E0%B8%84%E0%B9%89%E0%B8%B2%E0%B9%80%E0%B8%81%E0%B8%A9%E0%B8%95%E0%B8%A3/TH-TH",
+            "https://www.oae.go.th/",
+        ),
+    ]
+
+    html = None
+    used_url = result["source_url"]
+    for url, referer in sources:
+        html = fetch(url, referer=referer)
+        if html:
+            used_url = url
+            break
 
     if not html:
         result.update({"price": 16850, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+        log.info(f"rice_jasmine: {result['price']} THB/ตัน | status=fallback (all sources failed)")
         return result
 
-    # ดึงราคาปัจจุบัน — หลายรูปแบบ
+    result["source_url"] = used_url
+
+    # ดึงราคาปัจจุบัน — หลายรูปแบบ (เพิ่ม patterns รองรับรูปแบบหลากหลายขึ้น)
     patterns = [
         r'(\d{2},\d{3}\.\d{2})\s*\n\s*บาท/ตัน',
         r'ราคารับซื้อวันนี้[^0-9]*([\d,]+\.?\d*)\s*\n?\s*บาท/ตัน',
         r'"price"\s*:\s*"?([\d,]+\.?\d*)"?',
+        r'ข้าวเปลือกหอมมะลิ\s*105[^0-9]+(1[4-9],\d{3}(?:\.\d{2})?)',
+        r'หอมมะลิ\s*105[^0-9]+(1[4-9],\d{3}(?:\.\d{2})?)',
+        r'(1[4-9],\d{3}(?:\.\d{2})?)\s*(?:บาท/ตัน|บาท\s*ต่อ\s*ตัน)',
         r'(1[5-8],\d{3}(?:\.\d{2})?)\s*บาท',
     ]
     for p in patterns:
@@ -226,19 +250,28 @@ def scrape_rubber() -> dict:
         "commodity_en": "Rubber RSS3 Domestic",
         "price_low": None, "price_high": None,
         "unit": "THB/กก.", "date": None,
-        "source": "ฐานเศรษฐกิจ / กยท.",
-        "source_url": "https://www.thansettakij.com",
+        "source": "กยท. / สมาคมยางพาราไทย",
+        "source_url": "https://www.raot.co.th",
         "status": "confirmed",
     }
 
-    # ลองหลาย URL
+    # ลองหลาย URL — ใช้หน้า stable ที่อัปเดตรายวัน แทนการ hardcode article URL
     sources = [
-        ("https://www.thansettakij.com/economy/trade-agriculture/653068",
-         "https://www.google.com/search?q=ราคายางพาราวันนี้"),
-        ("https://www.bangkokbiznews.com/business/economic/1199243",
-         "https://www.bangkokbiznews.com"),
-        ("https://mgronline.com/politics/detail/9680000089141",
-         "https://www.google.com/"),
+        # RAOT (การยางแห่งประเทศไทย) — หน้าราคายางรายวัน official
+        (
+            "https://www.raot.co.th/ewtadmin/ewt/rubber_eng/rubber2012/menu5_eng.php",
+            "https://www.raot.co.th/",
+        ),
+        # สมาคมยางพาราไทย — ราคายางในประเทศ
+        (
+            "https://www.thainr.com/en/?detail=pr-local",
+            "https://www.google.com/search?q=Thailand+rubber+RSS3+price+today",
+        ),
+        # Global Rubber Markets — รวมราคา RSS3 จากหลายแหล่ง
+        (
+            "https://globalrubbermarkets.com/tag/rss3/",
+            "https://www.google.com/",
+        ),
     ]
 
     for url, referer in sources:
@@ -246,22 +279,32 @@ def scrape_rubber() -> dict:
         if not html:
             continue
 
-        # RSS3 price patterns
+        # RSS3 price patterns — รองรับรูปแบบ EN และ TH หลากหลาย
         patterns = [
-            r'RSS3.*?([\d]+\.[\d]+)[–\-]([\d]+\.[\d]+)\s*บาท(?:ต่อ|/)\s*(?:กิโลกรัม|กก)',
-            r'([\d]+\.[\d]+)[–\-]([\d]+\.[\d]+)\s*บาท(?:ต่อ|/)\s*(?:กิโลกรัม|กก)',
-            r'ยางแผ่นรมควัน.*?([\d]+\.[\d]+)\s*บาท',
-            r'(6[5-9]\.\d+|7[0-9]\.\d+|8[0-9]\.\d+)\s*บาท/กิโลกรัม',
+            # Thai: RSS3 followed by range XX.XX–XX.XX บาท
+            r'RSS\s*3[^0-9]*([\d]+\.[\d]+)[–\-]\s*([\d]+\.[\d]+)\s*(?:บาท|Baht)',
+            # Thai: RSS3 + single price
+            r'RSS\s*3[^0-9]*([\d]{2,3}\.[\d]{2})\s*(?:บาท|Baht)',
+            # Thai: ยางแผ่นรมควัน price
+            r'ยางแผ่นรมควัน[^0-9]*([\d]{2,3}\.[\d]{2})',
+            # English: "Ribbed Smoked Sheet" or "RSS3" price table
+            r'(?:Ribbed Smoked Sheet|RSS\s*3)[^\d]*([\d]{2,3}\.[\d]{2})(?:[^\d]*([\d]{2,3}\.[\d]{2}))?',
+            # English: price/kg pattern in realistic range
+            r'([\d]{2,3}\.[\d]{2})\s*(?:Baht|THB)/(?:kg|kilogram)',
+            # Generic: price in realistic RSS3 domestic range (60–99 THB/kg)
+            r'(6[0-9]\.\d{2}|7[0-9]\.\d{2}|8[0-9]\.\d{2})\s*(?:บาท|Baht)(?:/(?:กก|kg|กิโลกรัม))?',
         ]
         for p in patterns:
             m = re.search(p, html, re.IGNORECASE | re.DOTALL)
             if m:
                 try:
                     result["price_low"]  = float(m.group(1))
-                    result["price_high"] = float(m.group(2)) if m.lastindex >= 2 else float(m.group(1))
+                    result["price_high"] = float(m.group(2)) if m.lastindex >= 2 and m.group(2) else float(m.group(1))
                     result["source_url"] = url
                     # หาวันที่
                     md = re.search(r'(\d+\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s*\d+)', html)
+                    if not md:
+                        md = re.search(r'(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})', html)
                     if md:
                         result["date"] = md.group(1)
                     break
@@ -272,7 +315,7 @@ def scrape_rubber() -> dict:
 
     if result["price_low"] is None:
         log.warning("rubber: using fallback")
-        result.update({"price_low": 70.0, "price_high": 78.0, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+        result.update({"price_low": 70.0, "price_high": 75.0, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
 
     log.info(f"rubber: {result['price_low']}–{result['price_high']} | status={result['status']}")
     return result

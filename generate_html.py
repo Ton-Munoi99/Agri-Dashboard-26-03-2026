@@ -4,11 +4,16 @@ Usage: python generate_html.py
        python generate_html.py --data data.json   (use existing JSON)
 """
 
+import html as _html
 import json
 import sys
 import os
 from pathlib import Path
 from datetime import datetime
+
+def esc(s: object) -> str:
+    """HTML-escape a scraped string value."""
+    return _html.escape(str(s)) if s else ""
 
 # ─── helpers ──────────────────────────────────
 def fmt(val, decimals=0):
@@ -170,17 +175,33 @@ def build_html(data: dict) -> str:
         final = fmt(h.get("final"), 2) if h.get("final") else "รอประกาศ"
         yoy   = h.get("yoy_initial")
         yoy_html = pct_pill(yoy, " YoY") if yoy is not None else pill("—", "na")
-        src_date = h.get("source_date") or "—"
-        src = h.get("source") or "—"
+        src_date = esc(h.get("source_date") or "—")
+        src = esc(h.get("source") or "—")
+        season = esc(h['season'])
         is_current = "style='font-weight:600'" if h == cane.get("history", [{}])[0] else ""
         cane_rows += f"""
         <tr>
-          <td {is_current}>{h['season']}{"&nbsp;★" if is_current else ""}</td>
+          <td {is_current}>{season}{"&nbsp;★" if is_current else ""}</td>
           <td class="mono {'dn' if (yoy or 0) < 0 else 'up' if (yoy or 0) > 0 else ''}">{init}</td>
           <td class="mono">{final}</td>
           <td>{yoy_html}</td>
           <td style="font-size:10px;color:var(--muted)">{src_date} · {src}</td>
         </tr>"""
+
+    # ── Escape scraped strings before HTML injection ──
+    gen_e         = esc(gen)
+    rj_date_e     = esc(rj.get("date", ""))
+    rj_src_e      = esc(rj["source"])
+    w5_date_e     = esc(rfob["white5"].get("date", ""))
+    w5_src_e      = esc(rfob["white5"]["source"])
+    hm_date_e     = esc(rfob["homali"].get("date", ""))
+    hm_src_e      = esc(rfob["homali"]["source"])
+    cf_date_e     = esc(cass["cassava_fresh"].get("date", ""))
+    cc_date_e     = esc(cass["cassava_chips"].get("date", ""))
+    rub_date_e    = esc(rub.get("date", ""))
+    rub_src_e     = esc(rub["source"])
+    cane_date_e   = esc(cane.get("date", ""))
+    cane_season_e = esc(cane.get("current_season", ""))
 
     HTML = f"""<!DOCTYPE html>
 <html lang="th">
@@ -273,7 +294,7 @@ body{{background:var(--bg);color:var(--text);font-family:var(--font);font-size:1
 <header class="header">
   <div>
     <h1>🌾 ราคาพืชเศรษฐกิจไทย <span>/ Agri Price Intel</span></h1>
-    <div class="header-sub">ข้าว · มันสำปะหลัง · ยางพารา · อ้อย &nbsp;|&nbsp; อัปเดต: {gen}</div>
+    <div class="header-sub">ข้าว · มันสำปะหลัง · ยางพารา · อ้อย &nbsp;|&nbsp; อัปเดต: {gen_e}</div>
   </div>
   <div style="text-align:right">
     <div class="live-badge"><span class="live-dot"></span>Auto-updated daily</div>
@@ -290,49 +311,49 @@ body{{background:var(--bg);color:var(--text);font-family:var(--font);font-size:1
       <div class="card-label">ข้าวเปลือกหอมมะลิ 105</div>
       <div class="card-price">{rj_price}<span class="card-unit">บาท/ตัน</span></div>
       <div class="card-meta">{pct_pill(wow_rj," WoW")}{pct_pill(mom_rj," MoM")}</div>
-      <div class="card-date">{rj.get('date','')} · {rj['source']}</div>
+      <div class="card-date">{rj_date_e} · {rj_src_e}</div>
     </div>
 
     <div class="card" style="--accent:var(--red)">
       <div class="card-label">ข้าวขาว 5% FOB Bangkok</div>
       <div class="card-price">{price_range(w5_low,w5_high)}<span class="card-unit">USD/ตัน</span></div>
       <div class="card-meta">{pill('WoW ~','na')}{pct_pill(-7.0,' MoM')}</div>
-      <div class="card-date">{rfob['white5'].get('date','')} · {rfob['white5']['source']}</div>
+      <div class="card-date">{w5_date_e} · {w5_src_e}</div>
     </div>
 
     <div class="card" style="--accent:var(--faint)">
       <div class="card-label">ข้าวหอมมะลิ 100% FOB</div>
       <div class="card-price">{fmt(hm_price,0)}<span class="card-unit">USD/ตัน</span></div>
       <div class="card-meta">{pill('→ STABLE','st')}</div>
-      <div class="card-date">{rfob['homali'].get('date','')} · {rfob['homali']['source']}</div>
+      <div class="card-date">{hm_date_e} · {hm_src_e}</div>
     </div>
 
     <div class="card" style="--accent:var(--faint)">
       <div class="card-label">หัวมันสด เชื้อแป้ง 30%</div>
       <div class="card-price">{price_range(cf_plow,cf_phigh)}<span class="card-unit">บาท/กก.</span></div>
       <div class="card-meta">{pill('→ STABLE','st')}</div>
-      <div class="card-date">{cass['cassava_fresh'].get('date','')} · nettathai.org (นครราชสีมา)</div>
+      <div class="card-date">{cf_date_e} · nettathai.org (นครราชสีมา)</div>
     </div>
 
     <div class="card" style="--accent:var(--faint)">
       <div class="card-label">มันเส้น (โกดังอยุธยา)</div>
       <div class="card-price">{price_range(cc_plow,cc_phigh)}<span class="card-unit">บาท/กก.</span></div>
       <div class="card-meta">{pill('→ STABLE','st')}</div>
-      <div class="card-date">{cass['cassava_chips'].get('date','')} · nettathai.org</div>
+      <div class="card-date">{cc_date_e} · nettathai.org</div>
     </div>
 
     <div class="card" style="--accent:var(--green)">
       <div class="card-label">ยางแผ่นรมควัน RSS3</div>
       <div class="card-price">{price_range(rub_low,rub_high)}<span class="card-unit">บาท/กก.</span></div>
       <div class="card-meta">{pill('↑ RISING','up')}{pct_pill(7.0,' MoM')}</div>
-      <div class="card-date">{rub.get('date','')} · {rub['source']}</div>
+      <div class="card-date">{rub_date_e} · {rub_src_e}</div>
     </div>
 
     <div class="card" style="--accent:var(--red)">
-      <div class="card-label">อ้อย ขั้นต้น {cane.get('current_season','')}</div>
+      <div class="card-label">อ้อย ขั้นต้น {cane_season_e}</div>
       <div class="card-price">{fmt(cane_init,0)}<span class="card-unit">บาท/ตัน</span></div>
       <div class="card-meta">{pill('annual price','na')}{pct_pill(-23.3,' YoY')}</div>
-      <div class="card-date">{cane.get('date','')} · กอน./ครม. @ 10 CCS</div>
+      <div class="card-date">{cane_date_e} · กอน./ครม. @ 10 CCS</div>
     </div>
 
   </div>
