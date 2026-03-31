@@ -45,3 +45,14 @@ jobs:
           # Only commit if there are actual changes
           git diff --cached --quiet || git commit -m "chore: update agri prices $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
+
+      # ── 6. Trigger Netlify redeploy ───────────────────
+      - name: Trigger Netlify deploy
+        if: env.NETLIFY_DEPLOY_HOOK != ''
+        env:
+          NETLIFY_DEPLOY_HOOK: ${{ secrets.NETLIFY_DEPLOY_HOOK }}
+        run: |
+          curl -s -X POST "$NETLIFY_DEPLOY_HOOK" \
+            -d '{"clear_cache":false}' \
+            -H "Content-Type: application/json"
+          echo "Netlify deploy triggered"
