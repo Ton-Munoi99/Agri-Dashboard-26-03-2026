@@ -1,17 +1,19 @@
 {
-  "generated_at": "2026-04-01T03:57:21.786143",
-  "generated_date": "01 April 2026",
-  "generated_date_th": "1 เม.ย. 2569",
+  "generated_at": "2026-04-02T01:48:43.762200",
+  "generated_date": "02 April 2026",
+  "generated_date_th": "2 เม.ย. 2569",
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
     "commodity_en": "Jasmine Paddy Rice",
-    "price": 16850,
+    "price": 15520,
+    "price_low": 10000,
+    "price_high": 17500,
     "unit": "THB/ตัน",
-    "date": "ค่าล่าสุดที่ทราบ",
-    "source": "rakakaset.com / สมาคมโรงสีข้าวไทย (อ้าง OAE)",
-    "source_url": "https://rakakaset.com/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7/",
+    "date": "27032569",
+    "source": "สมาคมโรงสีข้าวไทย (PDF รายสัปดาห์)",
+    "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
     "history_30d": [],
-    "status": "fallback"
+    "status": "confirmed"
   },
   "cassava": {
     "cassava_fresh": {
@@ -20,7 +22,7 @@
       "price_low": 2.85,
       "price_high": 3.05,
       "unit": "THB/กก.",
-      "date": "30 มีนาคม 2569",
+      "date": "1 เมษายน 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
@@ -31,7 +33,7 @@
       "price_low": 7.5,
       "price_high": 7.8,
       "unit": "THB/กก.",
-      "date": "30 มีนาคม 2569",
+      "date": "1 เมษายน 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
@@ -44,7 +46,7 @@
     "price_high": 75.0,
     "unit": "THB/กก.",
     "date": "ค่าล่าสุดที่ทราบ",
-    "source": "กยท. / สมาคมยางพาราไทย",
+    "source": "กยท. / ราคายางดอทคอม",
     "source_url": "https://www.raot.co.th",
     "status": "fallback"
   },
@@ -127,7 +129,7 @@
   },
   "rice_detail": {
     "trea_fob": {
-      "date": "25 Mar     2026",
+      "date": "1 Apr     2026",
       "source_url": "http://www.thairiceexporters.or.th/default_eng.htm",
       "source": "Thai Rice Exporters Association (TREA)",
       "scraped": true,
