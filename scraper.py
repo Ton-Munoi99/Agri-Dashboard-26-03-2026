@@ -236,43 +236,98 @@ def scrape_cassava() -> dict:
 # ─────────────────────────────────────────────
 # 3. ยางพารา RSS3
 # ─────────────────────────────────────────────
-def _scrape_rubber_from_json(url: str, referer: str) -> Optional[dict]:
-    """ลอง fetch JSON API สำหรับราคายาง (data.go.th CKAN หรือ API อื่นๆ)."""
-    raw_bytes = None
-    for attempt in range(2):
-        try:
-            time.sleep(random.uniform(0.5, 1.5))
-            req = urllib.request.Request(url, headers={
-                "User-Agent": random.choice(USER_AGENTS),
-                "Accept": "application/json, */*",
-                "Referer": referer,
-            })
-            with urllib.request.urlopen(req, timeout=15) as r:
-                raw_bytes = r.read()
-            break
-        except Exception as e:
-            log.warning(f"  rubber JSON attempt {attempt+1}: {e}")
-            time.sleep(2 ** attempt)
-    if not raw_bytes:
-        return None
+def _scrape_rubber_fred_thb() -> Optional[dict]:
+    """
+    ดึงราคายาง TSR20 (USD/kg) จาก FRED (World Bank Pink Sheet)
+    แล้วแปลงเป็น THB/kg โดยใช้อัตราแลกเปลี่ยนจาก open.er-api.com
+    TSR20 และ RSS3 มีความสัมพันธ์สูง (RSS3 ≈ TSR20 × 1.05)
+    """
+    import csv as _csv, io as _io
+
+    # ── ขั้น 1: ราคายาง USD/kg จาก FRED ──────────────────────
+    fred_url = "https://fred.stlouisfed.org/graph/fredgraph.csv?id=PRUBBUSDM"
     try:
-        data = json.loads(raw_bytes)
-        records = (data.get("result", {}).get("records") or
-                   data.get("records") or
-                   data.get("data") or [])
-        if not records:
-            return None
-        latest = records[-1]
-        # ลองชื่อ field หลากหลาย
-        for k in ("rss3", "RSS3", "price", "Price", "ราคา"):
-            if k in latest:
-                val = float(str(latest[k]).replace(",", ""))
-                if 40 < val < 200:
-                    date_val = (latest.get("date") or latest.get("Date") or
-                                latest.get("วันที่") or "")
-                    return {"price": val, "date": str(date_val)}
+        req = urllib.request.Request(fred_url, headers={
+            "User-Agent": random.choice(USER_AGENTS),
+            "Accept": "text/csv,*/*",
+            "Referer": "https://fred.stlouisfed.org/",
+        })
+        with urllib.request.urlopen(req, timeout=20) as r:
+            csv_text = r.read().decode("utf-8")
     except Exception as e:
-        log.warning(f"  rubber JSON parse error: {e}")
+        log.warning(f"rubber FRED: fetch failed: {e}")
+        return None
+
+    usd_price = None
+    price_date = None
+    reader = _csv.reader(_io.StringIO(csv_text))
+    next(reader, None)  # skip header
+    for row in reader:
+        if len(row) >= 2 and row[1] not in (".", ""):
+            try:
+                usd_price = float(row[1])
+                price_date = row[0]
+            except ValueError:
+                pass
+
+    if not usd_price or usd_price <= 0:
+        log.warning("rubber FRED: no valid price found in CSV")
+        return None
+
+    # ── ขั้น 2: อัตราแลกเปลี่ยน USD/THB ─────────────────────
+    thb_per_usd = None
+    try:
+        req2 = urllib.request.Request(
+            "https://open.er-api.com/v6/latest/USD",
+            headers={"User-Agent": random.choice(USER_AGENTS), "Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req2, timeout=10) as r:
+            er_data = json.loads(r.read())
+        thb_per_usd = float(er_data.get("rates", {}).get("THB", 0))
+    except Exception as e:
+        log.warning(f"rubber FRED: exchange rate failed: {e}")
+
+    if not thb_per_usd or thb_per_usd <= 0:
+        thb_per_usd = 34.5  # ค่าประมาณกรณี API ล้มเหลว
+
+    # RSS3 ≈ TSR20 × 1.05 (premium grade adjustment)
+    thb_price = round(usd_price * thb_per_usd * 1.05, 2)
+    if not (40 < thb_price < 250):
+        log.warning(f"rubber FRED: converted price {thb_price} out of expected range")
+        return None
+
+    log.info(f"rubber FRED: {usd_price} USD/kg × {thb_per_usd:.2f} × 1.05 = {thb_price:.2f} THB/kg | date={price_date}")
+    return {"price": thb_price, "date": price_date, "source": "World Bank/FRED (TSR20→RSS3 est.)"}
+
+
+def _scrape_rubber_indexmundi() -> Optional[dict]:
+    """
+    ดึงราคายางรายเดือนจาก IndexMundi (หน่วย THB/kg)
+    https://www.indexmundi.com/commodities/?commodity=rubber&months=3&currency=thb
+    """
+    url = "https://www.indexmundi.com/commodities/?commodity=rubber&months=3&currency=thb"
+    html = fetch(url, referer="https://www.indexmundi.com/")
+    if not html:
+        return None
+    # ตาราง IndexMundi มีรูปแบบ: <td>Month YYYY</td><td>XX.XX</td>
+    rows = re.findall(
+        r'<td[^>]*>\s*(\w+ \d{4})\s*</td>\s*<td[^>]*>\s*([\d,]+\.[\d]+)\s*</td>',
+        html, re.IGNORECASE
+    )
+    if not rows:
+        # fallback pattern: ค้นหาตัวเลขราคายางในหน่วย THB ช่วง 40-200
+        m = re.search(r'(6[0-9]\.\d{2}|7[0-9]\.\d{2}|8[0-9]\.\d{2})', html)
+        if m:
+            return {"price": float(m.group(1)), "date": ""}
+        return None
+    # เอา row ล่าสุด
+    last_date, last_price = rows[-1]
+    try:
+        price = float(last_price.replace(",", ""))
+        if 40 < price < 200:
+            return {"price": price, "date": last_date}
+    except ValueError:
+        pass
     return None
 
 
@@ -282,66 +337,76 @@ def scrape_rubber() -> dict:
         "commodity_en": "Rubber RSS3 Domestic",
         "price_low": None, "price_high": None,
         "unit": "THB/กก.", "date": None,
-        "source": "กยท. / ราคายางดอทคอม",
+        "source": "กยท.",
         "source_url": "https://www.raot.co.th",
         "status": "confirmed",
     }
 
-    # ── แหล่งที่ 1: data.go.th CKAN API (open government data) ──────────
-    # resource_id สำหรับ "ราคายางพาราในประเทศ รายวัน" จาก กยท./OAE
-    CKAN_RESOURCES = [
-        "https://data.go.th/api/3/action/datastore_search?resource_id=88674e0e-c327-4d8b-8b69-f05696af4de8&limit=5&sort=_id+desc",
-        "https://opendata.data.go.th/api/3/action/datastore_search?resource_id=88674e0e-c327-4d8b-8b69-f05696af4de8&limit=5&sort=_id+desc",
-    ]
-    for api_url in CKAN_RESOURCES:
-        r = _scrape_rubber_from_json(api_url, "https://data.go.th/")
-        if r:
-            result["price_low"]  = r["price"]
-            result["price_high"] = r["price"]
-            result["date"]       = r["date"]
-            result["source"]     = "data.go.th (กยท.)"
-            result["source_url"] = "https://data.go.th/"
-            log.info(f"rubber: {r['price']} THB/กก. | source=data.go.th")
-            return result
+    # ── แหล่งที่ 1: RAOT รายปี (หน้าข้อมูลประวัติ — เข้าถึงง่ายกว่า live) ──
+    raot_yr_html = fetch(
+        "https://www.raot.co.th/rubber2012/rubberprice_yr.php",
+        referer="https://www.raot.co.th/",
+    )
+    if raot_yr_html:
+        # ตารางมีรูปแบบ: ปี | RSS3 | STR20 ... ค้นหาราคา RSS3 ล่าสุด
+        m = re.search(
+            r'(?:RSS\s*3|แผ่นรมควัน\s*3)[^\d]*([\d]{2,3}\.[\d]{2})',
+            raot_yr_html, re.IGNORECASE | re.DOTALL
+        )
+        if m:
+            try:
+                p = float(m.group(1))
+                if 40 < p < 200:
+                    result["price_low"] = result["price_high"] = p
+                    result["source"] = "การยางแห่งประเทศไทย (กยท.)"
+                    result["source_url"] = "https://www.raot.co.th/rubber2012/rubberprice_yr.php"
+                    yr = re.search(r'(\d{4})', raot_yr_html)
+                    result["date"] = yr.group(1) if yr else ""
+                    log.info(f"rubber: {p} THB/กก. | source=RAOT-yr")
+                    return result
+            except ValueError:
+                pass
 
-    # ── แหล่งที่ 2: rakayang.net — เว็บราคายางอันดับ 1 ─────────────────
-    # หน้า index1.php = "ราคายางตลาดจริงในประเทศ" (ไม่ต้อง login)
+    # ── แหล่งที่ 2: IndexMundi (ราคารายเดือน THB/kg) ──────────────────────
+    r2 = _scrape_rubber_indexmundi()
+    if r2:
+        result["price_low"] = result["price_high"] = r2["price"]
+        result["date"]       = r2["date"]
+        result["source"]     = "IndexMundi / World Bank"
+        result["source_url"] = "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb"
+        log.info(f"rubber: {r2['price']} THB/กก. | source=IndexMundi | date={r2['date']}")
+        return result
+
+    # ── แหล่งที่ 3: FRED (World Bank TSR20) + ExchangeRate → THB ──────────
+    r3 = _scrape_rubber_fred_thb()
+    if r3:
+        result["price_low"] = result["price_high"] = r3["price"]
+        result["date"]       = r3["date"]
+        result["source"]     = r3["source"]
+        result["source_url"] = "https://fred.stlouisfed.org/series/PRUBBUSDM"
+        return result
+
+    # ── แหล่งที่ 4: HTML scrape จากเว็บไทย (RAOT, rakayang, thainr) ───────
     html_sources = [
-        (
-            "http://www.rakayang.net/index1.php",
-            "https://www.rakayang.net/",
-        ),
-        (
-            "https://www.rakayang.net/MorningPrice.php",
-            "https://www.rakayang.net/",
-        ),
-        # RAOT official — ยังลองเพราะ GitHub Actions อาจเข้าถึงได้
-        (
-            "https://www.raot.co.th/ewtadmin/ewt/rubber_eng/rubber2012/menu5_eng.php",
-            "https://www.raot.co.th/",
-        ),
-        (
-            "https://www.thainr.com/en/?detail=pr-local",
-            "https://www.google.com/search?q=Thailand+rubber+RSS3+price",
-        ),
+        ("https://www.raot.co.th/rubber2012/rubberprice_mon_yr.php", "https://www.raot.co.th/"),
+        ("https://www.raot.co.th/ewtadmin/ewt/rubber_eng/rubber2012/menu5_eng.php", "https://www.raot.co.th/"),
+        ("http://www.rakayang.net/index1.php", "https://www.rakayang.net/"),
+        ("https://www.rakayang.net/MorningPrice.php", "https://www.rakayang.net/"),
+        ("https://www.thainr.com/en/?detail=pr-local", "https://www.google.com/"),
     ]
-
+    patterns = [
+        r'RSS\s*3\s*(?:ชั้น|Grade)?\s*[:\s]*([\d]{2,3}\.[\d]{2})',
+        r'แผ่นรมควัน\s*(?:ชั้น|No\.|Grade)?\s*3[^0-9]*([\d]{2,3}\.[\d]{2})',
+        r'RSS\s*3[^0-9]*([\d]{2,3}\.[\d]{2})[–\-\s]*([\d]{2,3}\.[\d]{2})',
+        r'ยางแผ่นรมควัน[^0-9]*([\d]{2,3}\.[\d]{2})',
+        r'(?:Ribbed Smoked Sheet|RSS\s*3)[^\d]*([\d]{2,3}\.[\d]{2})(?:[^\d]*([\d]{2,3}\.[\d]{2}))?',
+        r'([\d]{2,3}\.[\d]{2})\s*(?:Baht|THB|บาท)/(?:kg|กก|kilogram)',
+        r'(6[0-9]\.\d{2}|7[0-9]\.\d{2}|8[0-9]\.\d{2})\s*(?:บาท|Baht)',
+    ]
     for url, referer in html_sources:
         html = fetch(url, referer=referer)
         if not html:
             continue
-
-        patterns = [
-            # rakayang.net: "RSS3 XX.XX" หรือ "แผ่นรมควัน 3 XX.XX"
-            r'RSS\s*3\s*(?:ชั้น|Grade)?\s*[:\s]*([\d]{2,3}\.[\d]{2})',
-            r'แผ่นรมควัน\s*(?:ชั้น|No\.|Grade)?\s*3[^0-9]*([\d]{2,3}\.[\d]{2})',
-            # range format
-            r'RSS\s*3[^0-9]*([\d]{2,3}\.[\d]{2})[–\-\s]*([\d]{2,3}\.[\d]{2})',
-            r'ยางแผ่นรมควัน[^0-9]*([\d]{2,3}\.[\d]{2})',
-            r'(?:Ribbed Smoked Sheet|RSS\s*3)[^\d]*([\d]{2,3}\.[\d]{2})(?:[^\d]*([\d]{2,3}\.[\d]{2}))?',
-            r'([\d]{2,3}\.[\d]{2})\s*(?:Baht|THB|บาท)/(?:kg|กก|kilogram)',
-            r'(6[0-9]\.\d{2}|7[0-9]\.\d{2}|8[0-9]\.\d{2})\s*(?:บาท|Baht)',
-        ]
         for p in patterns:
             m = re.search(p, html, re.IGNORECASE | re.DOTALL)
             if m:
