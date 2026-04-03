@@ -2,8 +2,10 @@ name: Daily Agri Price Update
 
 on:
   schedule:
-    # 08:00 ICT = 01:00 UTC
+    # 08:00 ICT = 01:00 UTC  (primary)
     - cron: "0 1 * * *"
+    # 10:00 ICT = 03:00 UTC  (backup — fires if primary was delayed/skipped)
+    - cron: "0 3 * * *"
   workflow_dispatch:   # allow manual trigger from GitHub UI
 
 permissions:
