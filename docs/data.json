@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-04-03T05:11:53.261232",
+  "generated_at": "2026-04-03T18:00:17.691765",
   "generated_date": "03 April 2026",
   "generated_date_th": "3 เม.ย. 2569",
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
     "commodity_en": "Jasmine Paddy Rice",
-    "price": 15520,
-    "price_low": 10000,
+    "price": 14258,
+    "price_low": 7500,
     "price_high": 17500,
     "unit": "THB/ตัน",
-    "date": "27032569",
+    "date": "03042569",
     "source": "สมาคมโรงสีข้าวไทย (PDF รายสัปดาห์)",
     "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
     "history_30d": [],
@@ -175,8 +175,8 @@
       ]
     },
     "thai_rice_mills": {
-      "date": "27032569",
-      "pdf_url": "http://www.thairicemillers.org/images/introc_1429264173/Pricerice27032569.pdf",
+      "date": "03042569",
+      "pdf_url": "http://www.thairicemillers.org/images/introc_1429264173/Pricerice03042569.pdf",
       "source": "สมาคมโรงสีข้าวไทย",
       "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
       "scraped": true,
@@ -207,8 +207,8 @@
       "paddy_jasmine": [
         {
           "province": "บุรีรัมย์",
-          "price_low": 16500,
-          "price_high": 17200
+          "price_low": 16800,
+          "price_high": 17400
         },
         {
           "province": "ร้อยเอ็ด",
@@ -229,6 +229,11 @@
           "province": "อุดรธานี",
           "price_low": 10000,
           "price_high": 11000
+        },
+        {
+          "province": "ขอนแก่น",
+          "price_low": 7500,
+          "price_high": 7900
         }
       ],
       "paddy_sticky": [
@@ -245,8 +250,8 @@
       ],
       "paddy_white_stats": {},
       "paddy_jasmine_stats": {
-        "avg": 15520,
-        "min": 10000,
+        "avg": 14258,
+        "min": 7500,
         "max": 17500
       },
       "paddy_pathum": []
