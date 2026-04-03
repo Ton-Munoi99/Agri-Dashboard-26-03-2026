@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-02T03:38:36.176731",
-  "generated_date": "02 April 2026",
-  "generated_date_th": "2 เม.ย. 2569",
+  "generated_at": "2026-04-03T03:18:20.668705",
+  "generated_date": "03 April 2026",
+  "generated_date_th": "3 เม.ย. 2569",
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
     "commodity_en": "Jasmine Paddy Rice",
@@ -46,7 +46,7 @@
     "price_high": 75.0,
     "unit": "THB/กก.",
     "date": "ค่าล่าสุดที่ทราบ",
-    "source": "กยท. / ราคายางดอทคอม",
+    "source": "กยท.",
     "source_url": "https://www.raot.co.th",
     "status": "fallback"
   },
