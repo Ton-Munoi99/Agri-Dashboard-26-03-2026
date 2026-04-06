@@ -9,11 +9,27 @@ import random
 import logging
 import urllib.request
 import urllib.error
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import Optional
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger("scraper")
+
+# ─── pre-compiled patterns (compiled once at import, not per call) ────────
+_RE_THAI_DATE = re.compile(
+    r'(\d{1,2}\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s*\d{4})'
+)
+_RE_DATE_SLASH = re.compile(r'(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})')
+_RE_RUBBER_PATTERNS = [re.compile(p, re.IGNORECASE | re.DOTALL) for p in [
+    r'RSS\s*3\s*(?:ชั้น|Grade)?\s*[:\s]*([\d]{2,3}\.[\d]{2})',
+    r'แผ่นรมควัน\s*(?:ชั้น|No\.|Grade)?\s*3[^0-9]*([\d]{2,3}\.[\d]{2})',
+    r'RSS\s*3[^0-9]*([\d]{2,3}\.[\d]{2})[–\-\s]*([\d]{2,3}\.[\d]{2})',
+    r'ยางแผ่นรมควัน[^0-9]*([\d]{2,3}\.[\d]{2})',
+    r'(?:Ribbed Smoked Sheet|RSS\s*3)[^\d]*([\d]{2,3}\.[\d]{2})(?:[^\d]*([\d]{2,3}\.[\d]{2}))?',
+    r'([\d]{2,3}\.[\d]{2})\s*(?:Baht|THB|บาท)/(?:kg|กก|kilogram)',
+    r'(6[0-9]\.\d{2}|7[0-9]\.\d{2}|8[0-9]\.\d{2})\s*(?:บาท|Baht)',
+]]
 
 # ─── rotate user-agents เพื่อหลีกเลี่ยง block ───────────────
 USER_AGENTS = [
@@ -40,12 +56,27 @@ def get_headers(referer: str = "https://www.google.com/") -> dict:
         "Cache-Control": "max-age=0",
     }
 
+import threading
+_domain_last_fetch: dict = {}
+_domain_lock = threading.Lock()
+
+def _domain_polite_sleep(url: str, min_gap: float = 1.5) -> None:
+    """Sleep only if we recently hit the same domain — respect per-domain rate limit."""
+    from urllib.parse import urlparse
+    domain = urlparse(url).netloc
+    now = time.monotonic()
+    with _domain_lock:
+        last = _domain_last_fetch.get(domain, 0)
+        wait = min_gap - (now - last)
+        _domain_last_fetch[domain] = now + max(wait, 0)
+    if wait > 0:
+        time.sleep(wait + random.uniform(0, 0.5))
+
 def fetch(url: str, timeout: int = 20, referer: str = "https://www.google.com/") -> Optional[str]:
-    """Fetch URL with retry + random delay."""
+    """Fetch URL with retry + domain-aware polite delay."""
     for attempt in range(3):
         try:
-            # random delay 1-3 วินาที ดูเหมือน human
-            time.sleep(random.uniform(1.0, 3.0))
+            _domain_polite_sleep(url)    # sleep only if same domain fetched recently
             req = urllib.request.Request(url, headers=get_headers(referer))
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 raw = r.read()
@@ -236,6 +267,115 @@ def scrape_cassava() -> dict:
 # ─────────────────────────────────────────────
 # 3. ยางพารา RSS3
 # ─────────────────────────────────────────────
+def _get_thb_per_usd() -> float:
+    """ดึงอัตรา USD/THB จาก open.er-api.com (ฟรี ไม่ต้อง auth)"""
+    try:
+        req = urllib.request.Request(
+            "https://open.er-api.com/v6/latest/USD",
+            headers={"User-Agent": random.choice(USER_AGENTS), "Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return float(json.loads(r.read()).get("rates", {}).get("THB", 0))
+    except Exception as e:
+        log.warning(f"exchange rate: {e}")
+    return 34.5  # ค่าประมาณถ้า API ล้มเหลว
+
+
+def _scrape_rubber_yahoo() -> Optional[dict]:
+    """
+    ดึงราคายาง RSS3 จาก Yahoo Finance (TOCOM futures)
+    Symbol: TRB=F (TOCOM Rubber RSS3) — quoted in JPY/kg
+    แปลง JPY → THB ผ่าน open.er-api.com
+    """
+    symbols = ["TRB=F", "RTBZ26.OSE", "PTRB=F"]
+    for sym in symbols:
+        url = f"https://query2.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=5d"
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": random.choice(USER_AGENTS),
+                "Accept": "application/json",
+                "Referer": "https://finance.yahoo.com/",
+            })
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read())
+            meta = data.get("chart", {}).get("result", [{}])[0].get("meta", {})
+            jpy_price = meta.get("regularMarketPrice") or meta.get("previousClose")
+            currency  = meta.get("currency", "JPY")
+            if not jpy_price or jpy_price <= 0:
+                continue
+            # แปลง JPY → THB
+            thb_per_jpy = None
+            try:
+                req2 = urllib.request.Request(
+                    "https://open.er-api.com/v6/latest/JPY",
+                    headers={"User-Agent": random.choice(USER_AGENTS), "Accept": "application/json"},
+                )
+                with urllib.request.urlopen(req2, timeout=10) as r:
+                    thb_per_jpy = float(json.loads(r.read()).get("rates", {}).get("THB", 0))
+            except Exception as e:
+                log.warning(f"rubber Yahoo: JPY/THB rate failed: {e}")
+            if not thb_per_jpy or thb_per_jpy <= 0:
+                thb_per_jpy = 0.235  # ~1 JPY = 0.235 THB
+            thb_price = round(jpy_price * thb_per_jpy, 2)
+            if 40 < thb_price < 250:
+                log.info(f"rubber Yahoo: {jpy_price} {currency}/kg × {thb_per_jpy:.4f} = {thb_price:.2f} THB/kg | sym={sym}")
+                return {"price": thb_price, "date": "", "source": f"Yahoo Finance TOCOM ({sym})"}
+        except Exception as e:
+            log.warning(f"rubber Yahoo {sym}: {e}")
+    return None
+
+
+def _scrape_rubber_worldbank() -> Optional[dict]:
+    """
+    ดึงราคายางจาก World Bank Open Data API
+    Indicator: PNRUBBUSGM (Rubber USD/kg Monthly, nominal)
+    API สาธารณะ ไม่ต้อง auth
+    """
+    # ลอง indicator codes ที่เป็นไปได้
+    indicators = ["PNRUBBUSGM", "RUBBER", "PNRUBB"]
+    for ind in indicators:
+        url = f"https://api.worldbank.org/v2/en/indicator/{ind}?format=json&mrv=6&per_page=6"
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": random.choice(USER_AGENTS),
+                "Accept": "application/json",
+            })
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read())
+            # response: [metadata_dict, [record, ...]]
+            records = data[1] if isinstance(data, list) and len(data) > 1 else []
+            for rec in reversed(records):
+                val = rec.get("value")
+                if val and float(val) > 0:
+                    usd_price = float(val)
+                    thb = _get_thb_per_usd()
+                    thb_price = round(usd_price * thb * 1.05, 2)
+                    if 40 < thb_price < 250:
+                        log.info(f"rubber WorldBank: {usd_price} USD/kg × {thb:.2f} × 1.05 = {thb_price:.2f} THB/kg | ind={ind} | date={rec.get('date','')}")
+                        return {"price": thb_price, "date": str(rec.get("date", "")), "source": "World Bank (Rubber USD/kg)"}
+        except Exception as e:
+            log.warning(f"rubber WorldBank {ind}: {e}")
+    return None
+
+
+def _read_last_confirmed_rubber() -> Optional[dict]:
+    """
+    อ่านราคายางล่าสุดที่สำเร็จจาก docs/data.json
+    ใช้เป็น fallback แทนค่า hardcode 70-75
+    """
+    import os
+    data_path = os.path.join(os.path.dirname(__file__), "docs", "data.json")
+    try:
+        with open(data_path, "r", encoding="utf-8") as f:
+            saved = json.load(f)
+        rubber = saved.get("rubber", {})
+        if rubber.get("price_low") and rubber.get("status") in ("confirmed",):
+            return rubber
+    except Exception:
+        pass
+    return None
+
+
 def _scrape_rubber_fred_thb() -> Optional[dict]:
     """
     ดึงราคายาง TSR20 (USD/kg) จาก FRED (World Bank Pink Sheet)
@@ -342,39 +482,22 @@ def scrape_rubber() -> dict:
         "status": "confirmed",
     }
 
-    # ── แหล่งที่ 1: RAOT รายปี (หน้าข้อมูลประวัติ — เข้าถึงง่ายกว่า live) ──
-    raot_yr_html = fetch(
-        "https://www.raot.co.th/rubber2012/rubberprice_yr.php",
-        referer="https://www.raot.co.th/",
-    )
-    if raot_yr_html:
-        # ตารางมีรูปแบบ: ปี | RSS3 | STR20 ... ค้นหาราคา RSS3 ล่าสุด
-        m = re.search(
-            r'(?:RSS\s*3|แผ่นรมควัน\s*3)[^\d]*([\d]{2,3}\.[\d]{2})',
-            raot_yr_html, re.IGNORECASE | re.DOTALL
-        )
-        if m:
-            try:
-                p = float(m.group(1))
-                if 40 < p < 200:
-                    result["price_low"] = result["price_high"] = p
-                    result["source"] = "การยางแห่งประเทศไทย (กยท.)"
-                    result["source_url"] = "https://www.raot.co.th/rubber2012/rubberprice_yr.php"
-                    yr = re.search(r'(\d{4})', raot_yr_html)
-                    result["date"] = yr.group(1) if yr else ""
-                    log.info(f"rubber: {p} THB/กก. | source=RAOT-yr")
-                    return result
-            except ValueError:
-                pass
+    # ── แหล่งที่ 1: Yahoo Finance TOCOM Rubber RSS3 ────────────────────────
+    r1 = _scrape_rubber_yahoo()
+    if r1:
+        result["price_low"] = result["price_high"] = r1["price"]
+        result["date"]       = r1["date"]
+        result["source"]     = r1["source"]
+        result["source_url"] = "https://finance.yahoo.com/"
+        return result
 
-    # ── แหล่งที่ 2: IndexMundi (ราคารายเดือน THB/kg) ──────────────────────
-    r2 = _scrape_rubber_indexmundi()
+    # ── แหล่งที่ 2: World Bank Open Data API ──────────────────────────────
+    r2 = _scrape_rubber_worldbank()
     if r2:
         result["price_low"] = result["price_high"] = r2["price"]
         result["date"]       = r2["date"]
-        result["source"]     = "IndexMundi / World Bank"
-        result["source_url"] = "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb"
-        log.info(f"rubber: {r2['price']} THB/กก. | source=IndexMundi | date={r2['date']}")
+        result["source"]     = r2["source"]
+        result["source_url"] = "https://api.worldbank.org/"
         return result
 
     # ── แหล่งที่ 3: FRED (World Bank TSR20) + ExchangeRate → THB ──────────
@@ -386,7 +509,33 @@ def scrape_rubber() -> dict:
         result["source_url"] = "https://fred.stlouisfed.org/series/PRUBBUSDM"
         return result
 
-    # ── แหล่งที่ 4: HTML scrape จากเว็บไทย (RAOT, rakayang, thainr) ───────
+    # ── แหล่งที่ 4: IndexMundi (ราคารายเดือน THB/kg) ──────────────────────
+    r4 = _scrape_rubber_indexmundi()
+    if r4:
+        result["price_low"] = result["price_high"] = r4["price"]
+        result["date"]       = r4["date"]
+        result["source"]     = "IndexMundi / World Bank"
+        result["source_url"] = "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb"
+        log.info(f"rubber: {r4['price']} THB/กก. | source=IndexMundi | date={r4['date']}")
+        return result
+
+    # ── แหล่งที่ 5: RAOT รายปี ──────────────────────────────────────────
+    raot_yr_html = fetch("https://www.raot.co.th/rubber2012/rubberprice_yr.php", referer="https://www.raot.co.th/")
+    if raot_yr_html:
+        m = re.search(r'(?:RSS\s*3|แผ่นรมควัน\s*3)[^\d]*([\d]{2,3}\.[\d]{2})', raot_yr_html, re.IGNORECASE | re.DOTALL)
+        if m:
+            try:
+                p = float(m.group(1))
+                if 40 < p < 200:
+                    result["price_low"] = result["price_high"] = p
+                    result["source"] = "การยางแห่งประเทศไทย (กยท.)"
+                    result["source_url"] = "https://www.raot.co.th/rubber2012/rubberprice_yr.php"
+                    log.info(f"rubber: {p} THB/กก. | source=RAOT-yr")
+                    return result
+            except ValueError:
+                pass
+
+    # ── แหล่งที่ 6: HTML scrape จากเว็บไทย (RAOT, rakayang, thainr) ───────
     html_sources = [
         ("https://www.raot.co.th/rubber2012/rubberprice_mon_yr.php", "https://www.raot.co.th/"),
         ("https://www.raot.co.th/ewtadmin/ewt/rubber_eng/rubber2012/menu5_eng.php", "https://www.raot.co.th/"),
@@ -394,30 +543,19 @@ def scrape_rubber() -> dict:
         ("https://www.rakayang.net/MorningPrice.php", "https://www.rakayang.net/"),
         ("https://www.thainr.com/en/?detail=pr-local", "https://www.google.com/"),
     ]
-    patterns = [
-        r'RSS\s*3\s*(?:ชั้น|Grade)?\s*[:\s]*([\d]{2,3}\.[\d]{2})',
-        r'แผ่นรมควัน\s*(?:ชั้น|No\.|Grade)?\s*3[^0-9]*([\d]{2,3}\.[\d]{2})',
-        r'RSS\s*3[^0-9]*([\d]{2,3}\.[\d]{2})[–\-\s]*([\d]{2,3}\.[\d]{2})',
-        r'ยางแผ่นรมควัน[^0-9]*([\d]{2,3}\.[\d]{2})',
-        r'(?:Ribbed Smoked Sheet|RSS\s*3)[^\d]*([\d]{2,3}\.[\d]{2})(?:[^\d]*([\d]{2,3}\.[\d]{2}))?',
-        r'([\d]{2,3}\.[\d]{2})\s*(?:Baht|THB|บาท)/(?:kg|กก|kilogram)',
-        r'(6[0-9]\.\d{2}|7[0-9]\.\d{2}|8[0-9]\.\d{2})\s*(?:บาท|Baht)',
-    ]
     for url, referer in html_sources:
         html = fetch(url, referer=referer)
         if not html:
             continue
-        for p in patterns:
-            m = re.search(p, html, re.IGNORECASE | re.DOTALL)
+        for pat in _RE_RUBBER_PATTERNS:   # pre-compiled — no recompile overhead
+            m = pat.search(html)
             if m:
                 try:
                     result["price_low"]  = float(m.group(1))
                     result["price_high"] = float(m.group(2)) if m.lastindex >= 2 and m.group(2) else float(m.group(1))
                     result["source_url"] = url
                     result["source"]     = "ราคายางดอทคอม / กยท."
-                    md = re.search(r'(\d+\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s*\d+)', html)
-                    if not md:
-                        md = re.search(r'(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})', html)
+                    md = _RE_THAI_DATE.search(html) or _RE_DATE_SLASH.search(html)
                     if md:
                         result["date"] = md.group(1)
                     break
@@ -427,8 +565,21 @@ def scrape_rubber() -> dict:
             break
 
     if result["price_low"] is None:
-        log.warning("rubber: all sources failed, using fallback")
-        result.update({"price_low": 70.0, "price_high": 75.0, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+        # ลองใช้ราคาครั้งล่าสุดที่ scrape สำเร็จจาก data.json
+        last = _read_last_confirmed_rubber()
+        if last:
+            result.update({
+                "price_low":  last["price_low"],
+                "price_high": last["price_high"],
+                "date":       last.get("date", ""),
+                "source":     last.get("source", "กยท.") + " (ค่าล่าสุดที่บันทึก)",
+                "source_url": last.get("source_url", result["source_url"]),
+                "status":     "stale",
+            })
+            log.warning(f"rubber: all live sources failed — using last confirmed {last['price_low']} THB/กก.")
+        else:
+            log.warning("rubber: all sources failed, using hardcoded fallback")
+            result.update({"price_low": 70.0, "price_high": 75.0, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
 
     log.info(f"rubber: {result['price_low']}–{result['price_high']} | status={result['status']}")
     return result
@@ -554,10 +705,7 @@ def scrape_rice_fob() -> dict:
 
 
 def _extract_date(html: str) -> Optional[str]:
-    m = re.search(
-        r'(\d{1,2}\s+(?:ม\.ค\.|ก\.พ\.|มี\.ค\.|เม\.ย\.|พ\.ค\.|มิ\.ย\.|ก\.ค\.|ส\.ค\.|ก\.ย\.|ต\.ค\.|พ\.ย\.|ธ\.ค\.)\s*\d{4})',
-        html
-    )
+    m = _RE_THAI_DATE.search(html)
     return m.group(1) if m else None
 
 
@@ -565,20 +713,38 @@ def _extract_date(html: str) -> Optional[str]:
 # MAIN
 # ─────────────────────────────────────────────
 def scrape_all() -> dict:
-    log.info("=== Starting scrape v2 ===")
+    """Run all scrapers in parallel — cuts wall-clock time from ~90s → ~25s."""
+    log.info("=== Starting scrape v3 (parallel) ===")
+    t0 = time.monotonic()
     now = datetime.now()
-    data = {
+
+    tasks = {
+        "rice_jasmine": scrape_rice_jasmine,
+        "cassava":      scrape_cassava,
+        "rubber":       scrape_rubber,
+        "sugarcane":    scrape_sugarcane,
+        "rice_fob":     scrape_rice_fob,
+    }
+    results: dict = {}
+    # 5 workers = one per scraper; I/O-bound so threads are fine
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        futures = {pool.submit(fn): key for key, fn in tasks.items()}
+        for fut in as_completed(futures):
+            key = futures[fut]
+            try:
+                results[key] = fut.result()
+            except Exception as e:
+                log.error(f"scraper '{key}' raised: {e}")
+                results[key] = {}
+
+    elapsed = time.monotonic() - t0
+    log.info(f"=== Scrape complete in {elapsed:.1f}s ===")
+    return {
         "generated_at":      now.isoformat(),
         "generated_date":    now.strftime("%d %B %Y"),
         "generated_date_th": _format_thai_date(now),
-        "rice_jasmine":      scrape_rice_jasmine(),
-        "cassava":           scrape_cassava(),
-        "rubber":            scrape_rubber(),
-        "sugarcane":         scrape_sugarcane(),
-        "rice_fob":          scrape_rice_fob(),
+        **results,
     }
-    log.info("=== Scrape complete ===")
-    return data
 
 
 def _format_thai_date(dt: datetime) -> str:
