@@ -236,6 +236,115 @@ def scrape_cassava() -> dict:
 # ─────────────────────────────────────────────
 # 3. ยางพารา RSS3
 # ─────────────────────────────────────────────
+def _get_thb_per_usd() -> float:
+    """ดึงอัตรา USD/THB จาก open.er-api.com (ฟรี ไม่ต้อง auth)"""
+    try:
+        req = urllib.request.Request(
+            "https://open.er-api.com/v6/latest/USD",
+            headers={"User-Agent": random.choice(USER_AGENTS), "Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return float(json.loads(r.read()).get("rates", {}).get("THB", 0))
+    except Exception as e:
+        log.warning(f"exchange rate: {e}")
+    return 34.5  # ค่าประมาณถ้า API ล้มเหลว
+
+
+def _scrape_rubber_yahoo() -> Optional[dict]:
+    """
+    ดึงราคายาง RSS3 จาก Yahoo Finance (TOCOM futures)
+    Symbol: TRB=F (TOCOM Rubber RSS3) — quoted in JPY/kg
+    แปลง JPY → THB ผ่าน open.er-api.com
+    """
+    symbols = ["TRB=F", "RTBZ26.OSE", "PTRB=F"]
+    for sym in symbols:
+        url = f"https://query2.finance.yahoo.com/v8/finance/chart/{sym}?interval=1d&range=5d"
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": random.choice(USER_AGENTS),
+                "Accept": "application/json",
+                "Referer": "https://finance.yahoo.com/",
+            })
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read())
+            meta = data.get("chart", {}).get("result", [{}])[0].get("meta", {})
+            jpy_price = meta.get("regularMarketPrice") or meta.get("previousClose")
+            currency  = meta.get("currency", "JPY")
+            if not jpy_price or jpy_price <= 0:
+                continue
+            # แปลง JPY → THB
+            thb_per_jpy = None
+            try:
+                req2 = urllib.request.Request(
+                    "https://open.er-api.com/v6/latest/JPY",
+                    headers={"User-Agent": random.choice(USER_AGENTS), "Accept": "application/json"},
+                )
+                with urllib.request.urlopen(req2, timeout=10) as r:
+                    thb_per_jpy = float(json.loads(r.read()).get("rates", {}).get("THB", 0))
+            except Exception as e:
+                log.warning(f"rubber Yahoo: JPY/THB rate failed: {e}")
+            if not thb_per_jpy or thb_per_jpy <= 0:
+                thb_per_jpy = 0.235  # ~1 JPY = 0.235 THB
+            thb_price = round(jpy_price * thb_per_jpy, 2)
+            if 40 < thb_price < 250:
+                log.info(f"rubber Yahoo: {jpy_price} {currency}/kg × {thb_per_jpy:.4f} = {thb_price:.2f} THB/kg | sym={sym}")
+                return {"price": thb_price, "date": "", "source": f"Yahoo Finance TOCOM ({sym})"}
+        except Exception as e:
+            log.warning(f"rubber Yahoo {sym}: {e}")
+    return None
+
+
+def _scrape_rubber_worldbank() -> Optional[dict]:
+    """
+    ดึงราคายางจาก World Bank Open Data API
+    Indicator: PNRUBBUSGM (Rubber USD/kg Monthly, nominal)
+    API สาธารณะ ไม่ต้อง auth
+    """
+    # ลอง indicator codes ที่เป็นไปได้
+    indicators = ["PNRUBBUSGM", "RUBBER", "PNRUBB"]
+    for ind in indicators:
+        url = f"https://api.worldbank.org/v2/en/indicator/{ind}?format=json&mrv=6&per_page=6"
+        try:
+            req = urllib.request.Request(url, headers={
+                "User-Agent": random.choice(USER_AGENTS),
+                "Accept": "application/json",
+            })
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = json.loads(r.read())
+            # response: [metadata_dict, [record, ...]]
+            records = data[1] if isinstance(data, list) and len(data) > 1 else []
+            for rec in reversed(records):
+                val = rec.get("value")
+                if val and float(val) > 0:
+                    usd_price = float(val)
+                    thb = _get_thb_per_usd()
+                    thb_price = round(usd_price * thb * 1.05, 2)
+                    if 40 < thb_price < 250:
+                        log.info(f"rubber WorldBank: {usd_price} USD/kg × {thb:.2f} × 1.05 = {thb_price:.2f} THB/kg | ind={ind} | date={rec.get('date','')}")
+                        return {"price": thb_price, "date": str(rec.get("date", "")), "source": "World Bank (Rubber USD/kg)"}
+        except Exception as e:
+            log.warning(f"rubber WorldBank {ind}: {e}")
+    return None
+
+
+def _read_last_confirmed_rubber() -> Optional[dict]:
+    """
+    อ่านราคายางล่าสุดที่สำเร็จจาก docs/data.json
+    ใช้เป็น fallback แทนค่า hardcode 70-75
+    """
+    import os
+    data_path = os.path.join(os.path.dirname(__file__), "docs", "data.json")
+    try:
+        with open(data_path, "r", encoding="utf-8") as f:
+            saved = json.load(f)
+        rubber = saved.get("rubber", {})
+        if rubber.get("price_low") and rubber.get("status") in ("confirmed",):
+            return rubber
+    except Exception:
+        pass
+    return None
+
+
 def _scrape_rubber_fred_thb() -> Optional[dict]:
     """
     ดึงราคายาง TSR20 (USD/kg) จาก FRED (World Bank Pink Sheet)
@@ -342,39 +451,22 @@ def scrape_rubber() -> dict:
         "status": "confirmed",
     }
 
-    # ── แหล่งที่ 1: RAOT รายปี (หน้าข้อมูลประวัติ — เข้าถึงง่ายกว่า live) ──
-    raot_yr_html = fetch(
-        "https://www.raot.co.th/rubber2012/rubberprice_yr.php",
-        referer="https://www.raot.co.th/",
-    )
-    if raot_yr_html:
-        # ตารางมีรูปแบบ: ปี | RSS3 | STR20 ... ค้นหาราคา RSS3 ล่าสุด
-        m = re.search(
-            r'(?:RSS\s*3|แผ่นรมควัน\s*3)[^\d]*([\d]{2,3}\.[\d]{2})',
-            raot_yr_html, re.IGNORECASE | re.DOTALL
-        )
-        if m:
-            try:
-                p = float(m.group(1))
-                if 40 < p < 200:
-                    result["price_low"] = result["price_high"] = p
-                    result["source"] = "การยางแห่งประเทศไทย (กยท.)"
-                    result["source_url"] = "https://www.raot.co.th/rubber2012/rubberprice_yr.php"
-                    yr = re.search(r'(\d{4})', raot_yr_html)
-                    result["date"] = yr.group(1) if yr else ""
-                    log.info(f"rubber: {p} THB/กก. | source=RAOT-yr")
-                    return result
-            except ValueError:
-                pass
+    # ── แหล่งที่ 1: Yahoo Finance TOCOM Rubber RSS3 ────────────────────────
+    r1 = _scrape_rubber_yahoo()
+    if r1:
+        result["price_low"] = result["price_high"] = r1["price"]
+        result["date"]       = r1["date"]
+        result["source"]     = r1["source"]
+        result["source_url"] = "https://finance.yahoo.com/"
+        return result
 
-    # ── แหล่งที่ 2: IndexMundi (ราคารายเดือน THB/kg) ──────────────────────
-    r2 = _scrape_rubber_indexmundi()
+    # ── แหล่งที่ 2: World Bank Open Data API ──────────────────────────────
+    r2 = _scrape_rubber_worldbank()
     if r2:
         result["price_low"] = result["price_high"] = r2["price"]
         result["date"]       = r2["date"]
-        result["source"]     = "IndexMundi / World Bank"
-        result["source_url"] = "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb"
-        log.info(f"rubber: {r2['price']} THB/กก. | source=IndexMundi | date={r2['date']}")
+        result["source"]     = r2["source"]
+        result["source_url"] = "https://api.worldbank.org/"
         return result
 
     # ── แหล่งที่ 3: FRED (World Bank TSR20) + ExchangeRate → THB ──────────
@@ -386,7 +478,33 @@ def scrape_rubber() -> dict:
         result["source_url"] = "https://fred.stlouisfed.org/series/PRUBBUSDM"
         return result
 
-    # ── แหล่งที่ 4: HTML scrape จากเว็บไทย (RAOT, rakayang, thainr) ───────
+    # ── แหล่งที่ 4: IndexMundi (ราคารายเดือน THB/kg) ──────────────────────
+    r4 = _scrape_rubber_indexmundi()
+    if r4:
+        result["price_low"] = result["price_high"] = r4["price"]
+        result["date"]       = r4["date"]
+        result["source"]     = "IndexMundi / World Bank"
+        result["source_url"] = "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb"
+        log.info(f"rubber: {r4['price']} THB/กก. | source=IndexMundi | date={r4['date']}")
+        return result
+
+    # ── แหล่งที่ 5: RAOT รายปี ──────────────────────────────────────────
+    raot_yr_html = fetch("https://www.raot.co.th/rubber2012/rubberprice_yr.php", referer="https://www.raot.co.th/")
+    if raot_yr_html:
+        m = re.search(r'(?:RSS\s*3|แผ่นรมควัน\s*3)[^\d]*([\d]{2,3}\.[\d]{2})', raot_yr_html, re.IGNORECASE | re.DOTALL)
+        if m:
+            try:
+                p = float(m.group(1))
+                if 40 < p < 200:
+                    result["price_low"] = result["price_high"] = p
+                    result["source"] = "การยางแห่งประเทศไทย (กยท.)"
+                    result["source_url"] = "https://www.raot.co.th/rubber2012/rubberprice_yr.php"
+                    log.info(f"rubber: {p} THB/กก. | source=RAOT-yr")
+                    return result
+            except ValueError:
+                pass
+
+    # ── แหล่งที่ 6: HTML scrape จากเว็บไทย (RAOT, rakayang, thainr) ───────
     html_sources = [
         ("https://www.raot.co.th/rubber2012/rubberprice_mon_yr.php", "https://www.raot.co.th/"),
         ("https://www.raot.co.th/ewtadmin/ewt/rubber_eng/rubber2012/menu5_eng.php", "https://www.raot.co.th/"),
@@ -427,8 +545,21 @@ def scrape_rubber() -> dict:
             break
 
     if result["price_low"] is None:
-        log.warning("rubber: all sources failed, using fallback")
-        result.update({"price_low": 70.0, "price_high": 75.0, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
+        # ลองใช้ราคาครั้งล่าสุดที่ scrape สำเร็จจาก data.json
+        last = _read_last_confirmed_rubber()
+        if last:
+            result.update({
+                "price_low":  last["price_low"],
+                "price_high": last["price_high"],
+                "date":       last.get("date", ""),
+                "source":     last.get("source", "กยท.") + " (ค่าล่าสุดที่บันทึก)",
+                "source_url": last.get("source_url", result["source_url"]),
+                "status":     "stale",
+            })
+            log.warning(f"rubber: all live sources failed — using last confirmed {last['price_low']} THB/กก.")
+        else:
+            log.warning("rubber: all sources failed, using hardcoded fallback")
+            result.update({"price_low": 70.0, "price_high": 75.0, "date": "ค่าล่าสุดที่ทราบ", "status": "fallback"})
 
     log.info(f"rubber: {result['price_low']}–{result['price_high']} | status={result['status']}")
     return result
