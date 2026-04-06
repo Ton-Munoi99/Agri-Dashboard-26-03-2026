@@ -1,54 +1,29 @@
 {
-  "generated_at": "2026-04-05T18:00:20.167076",
-  "generated_date": "05 April 2026",
-  "generated_date_th": "5 เม.ย. 2569",
-  "rice_jasmine": {
-    "commodity": "ข้าวเปลือกหอมมะลิ 105",
-    "commodity_en": "Jasmine Paddy Rice",
-    "price": 14258,
-    "price_low": 7500,
-    "price_high": 17500,
-    "unit": "THB/ตัน",
-    "date": "03042569",
-    "source": "สมาคมโรงสีข้าวไทย (PDF รายสัปดาห์)",
-    "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
-    "history_30d": [],
-    "status": "confirmed"
-  },
-  "cassava": {
-    "cassava_fresh": {
-      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
-      "commodity_en": "Fresh Cassava 30% Starch",
-      "price_low": 2.85,
-      "price_high": 3.05,
-      "unit": "THB/กก.",
-      "date": "1 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+  "generated_at": "2026-04-06T02:37:41.798302",
+  "generated_date": "06 April 2026",
+  "generated_date_th": "6 เม.ย. 2569",
+  "rice_fob": {
+    "white5": {
+      "commodity": "ข้าวขาว 5% FOB Bangkok",
+      "commodity_en": "White Rice 5% Broken FOB",
+      "price_low": 410.0,
+      "price_high": 410.0,
+      "unit": "USD/ตัน",
+      "date": "23 ก.พ. 2569",
+      "source": "Nation Thailand / Thai Rice Exporters Assoc.",
+      "source_url": "https://www.nationthailand.com",
       "status": "confirmed"
     },
-    "cassava_chips": {
-      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
-      "commodity_en": "Cassava Chips Ayutthaya",
-      "price_low": 7.5,
-      "price_high": 7.8,
-      "unit": "THB/กก.",
-      "date": "1 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+    "homali": {
+      "commodity": "ข้าวหอมมะลิ 100% FOB",
+      "commodity_en": "Hom Mali 100% FOB",
+      "price": 1171.0,
+      "unit": "USD/ตัน",
+      "date": "มี.ค. 69",
+      "source": "Thai Rice Exporters Assoc.",
+      "source_url": "https://www.nationthailand.com",
       "status": "confirmed"
     }
-  },
-  "rubber": {
-    "commodity": "ยางแผ่นรมควัน RSS3",
-    "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 70.0,
-    "price_high": 75.0,
-    "unit": "THB/กก.",
-    "date": "ค่าล่าสุดที่ทราบ",
-    "source": "กยท.",
-    "source_url": "https://www.raot.co.th",
-    "status": "fallback"
   },
   "sugarcane": {
     "commodity": "อ้อย (ราคาขั้นต้น)",
@@ -104,28 +79,53 @@
       }
     ]
   },
-  "rice_fob": {
-    "white5": {
-      "commodity": "ข้าวขาว 5% FOB Bangkok",
-      "commodity_en": "White Rice 5% Broken FOB",
-      "price_low": 410.0,
-      "price_high": 410.0,
-      "unit": "USD/ตัน",
-      "date": "23 ก.พ. 2569",
-      "source": "Nation Thailand / Thai Rice Exporters Assoc.",
-      "source_url": "https://www.nationthailand.com",
+  "rice_jasmine": {
+    "commodity": "ข้าวเปลือกหอมมะลิ 105",
+    "commodity_en": "Jasmine Paddy Rice",
+    "price": 14258,
+    "price_low": 7500,
+    "price_high": 17500,
+    "unit": "THB/ตัน",
+    "date": "03042569",
+    "source": "สมาคมโรงสีข้าวไทย (PDF รายสัปดาห์)",
+    "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
+    "history_30d": [],
+    "status": "confirmed"
+  },
+  "cassava": {
+    "cassava_fresh": {
+      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
+      "commodity_en": "Fresh Cassava 30% Starch",
+      "price_low": 2.85,
+      "price_high": 3.05,
+      "unit": "THB/กก.",
+      "date": "1 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     },
-    "homali": {
-      "commodity": "ข้าวหอมมะลิ 100% FOB",
-      "commodity_en": "Hom Mali 100% FOB",
-      "price": 1171.0,
-      "unit": "USD/ตัน",
-      "date": "มี.ค. 69",
-      "source": "Thai Rice Exporters Assoc.",
-      "source_url": "https://www.nationthailand.com",
+    "cassava_chips": {
+      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
+      "commodity_en": "Cassava Chips Ayutthaya",
+      "price_low": 7.5,
+      "price_high": 7.8,
+      "unit": "THB/กก.",
+      "date": "1 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     }
+  },
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 70.0,
+    "price_high": 75.0,
+    "unit": "THB/กก.",
+    "date": "ค่าล่าสุดที่ทราบ",
+    "source": "กยท.",
+    "source_url": "https://www.raot.co.th",
+    "status": "fallback"
   },
   "rice_detail": {
     "trea_fob": {
