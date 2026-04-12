@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-12T05:29:08.868556",
+  "generated_at": "2026-04-12T18:00:22.479068",
   "generated_date": "12 April 2026",
   "generated_date_th": "12 เม.ย. 2569",
   "rice_fob": {
@@ -22,30 +22,6 @@
       "date": "มี.ค. 69",
       "source": "Thai Rice Exporters Assoc.",
       "source_url": "https://www.nationthailand.com",
-      "status": "confirmed"
-    }
-  },
-  "cassava": {
-    "cassava_fresh": {
-      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
-      "commodity_en": "Fresh Cassava 30% Starch",
-      "price_low": 2.6,
-      "price_high": 3.25,
-      "unit": "THB/กก.",
-      "date": "10 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "confirmed"
-    },
-    "cassava_chips": {
-      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
-      "commodity_en": "Cassava Chips Ayutthaya",
-      "price_low": 7.75,
-      "price_high": 7.8,
-      "unit": "THB/กก.",
-      "date": "10 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     }
   },
@@ -102,6 +78,30 @@
         "source": "อ้างอิง"
       }
     ]
+  },
+  "cassava": {
+    "cassava_fresh": {
+      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
+      "commodity_en": "Fresh Cassava 30% Starch",
+      "price_low": 2.6,
+      "price_high": 3.25,
+      "unit": "THB/กก.",
+      "date": "10 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    },
+    "cassava_chips": {
+      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
+      "commodity_en": "Cassava Chips Ayutthaya",
+      "price_low": 7.75,
+      "price_high": 7.8,
+      "unit": "THB/กก.",
+      "date": "10 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    }
   },
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
