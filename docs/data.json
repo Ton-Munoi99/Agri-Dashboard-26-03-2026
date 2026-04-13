@@ -1,7 +1,18 @@
 {
-  "generated_at": "2026-04-13T05:47:14.131182",
+  "generated_at": "2026-04-13T18:00:23.680818",
   "generated_date": "13 April 2026",
   "generated_date_th": "13 เม.ย. 2569",
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 132.19,
+    "price_high": 132.19,
+    "unit": "THB/กก.",
+    "date": "",
+    "source": "Yahoo Finance TOCOM (TRB=F)",
+    "source_url": "https://finance.yahoo.com/",
+    "status": "confirmed"
+  },
   "rice_fob": {
     "white5": {
       "commodity": "ข้าวขาว 5% FOB Bangkok",
@@ -115,17 +126,6 @@
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     }
-  },
-  "rubber": {
-    "commodity": "ยางแผ่นรมควัน RSS3",
-    "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 70.0,
-    "price_high": 75.0,
-    "unit": "THB/กก.",
-    "date": "ค่าล่าสุดที่ทราบ",
-    "source": "กยท.",
-    "source_url": "https://www.raot.co.th",
-    "status": "fallback"
   },
   "rice_detail": {
     "trea_fob": {
