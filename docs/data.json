@@ -1,18 +1,7 @@
 {
-  "generated_at": "2026-04-17T03:58:55.693700",
+  "generated_at": "2026-04-17T05:33:48.830627",
   "generated_date": "17 April 2026",
   "generated_date_th": "17 เม.ย. 2569",
-  "rubber": {
-    "commodity": "ยางแผ่นรมควัน RSS3",
-    "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 131.78,
-    "price_high": 131.78,
-    "unit": "THB/กก.",
-    "date": "",
-    "source": "Yahoo Finance TOCOM (TRB=F)",
-    "source_url": "https://finance.yahoo.com/",
-    "status": "confirmed"
-  },
   "rice_fob": {
     "white5": {
       "commodity": "ข้าวขาว 5% FOB Bangkok",
@@ -126,6 +115,17 @@
     "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
     "history_30d": [],
     "status": "confirmed"
+  },
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 131.78,
+    "price_high": 131.78,
+    "unit": "THB/กก.",
+    "date": "",
+    "source": "Yahoo Finance TOCOM (TRB=F) (ค่าล่าสุดที่บันทึก)",
+    "source_url": "https://finance.yahoo.com/",
+    "status": "stale"
   },
   "rice_detail": {
     "trea_fob": {
