@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-19T05:34:09.027250",
+  "generated_at": "2026-04-19T18:00:19.204219",
   "generated_date": "19 April 2026",
   "generated_date_th": "19 เม.ย. 2569",
   "rice_fob": {
@@ -119,13 +119,13 @@
   "rubber": {
     "commodity": "ยางแผ่นรมควัน RSS3",
     "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 131.87,
-    "price_high": 131.87,
+    "price_low": 70.0,
+    "price_high": 75.0,
     "unit": "THB/กก.",
-    "date": "",
-    "source": "Yahoo Finance TOCOM (TRB=F) (ค่าล่าสุดที่บันทึก)",
-    "source_url": "https://finance.yahoo.com/",
-    "status": "stale"
+    "date": "ค่าล่าสุดที่ทราบ",
+    "source": "กยท.",
+    "source_url": "https://www.raot.co.th",
+    "status": "fallback"
   },
   "rice_detail": {
     "trea_fob": {
