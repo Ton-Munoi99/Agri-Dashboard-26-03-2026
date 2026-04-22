@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-21T18:00:22.114738",
-  "generated_date": "21 April 2026",
-  "generated_date_th": "21 เม.ย. 2569",
+  "generated_at": "2026-04-22T03:55:27.677001",
+  "generated_date": "22 April 2026",
+  "generated_date_th": "22 เม.ย. 2569",
   "rice_fob": {
     "white5": {
       "commodity": "ข้าวขาว 5% FOB Bangkok",
@@ -22,6 +22,30 @@
       "date": "มี.ค. 69",
       "source": "Thai Rice Exporters Assoc.",
       "source_url": "https://www.nationthailand.com",
+      "status": "confirmed"
+    }
+  },
+  "cassava": {
+    "cassava_fresh": {
+      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
+      "commodity_en": "Fresh Cassava 30% Starch",
+      "price_low": 2.9,
+      "price_high": 3.0,
+      "unit": "THB/กก.",
+      "date": "20 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    },
+    "cassava_chips": {
+      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
+      "commodity_en": "Cassava Chips Ayutthaya",
+      "price_low": 7.75,
+      "price_high": 7.8,
+      "unit": "THB/กก.",
+      "date": "20 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     }
   },
@@ -91,30 +115,6 @@
     "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
     "history_30d": [],
     "status": "confirmed"
-  },
-  "cassava": {
-    "cassava_fresh": {
-      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
-      "commodity_en": "Fresh Cassava 30% Starch",
-      "price_low": 2.9,
-      "price_high": 3.0,
-      "unit": "THB/กก.",
-      "date": "20 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "confirmed"
-    },
-    "cassava_chips": {
-      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
-      "commodity_en": "Cassava Chips Ayutthaya",
-      "price_low": 7.75,
-      "price_high": 7.8,
-      "unit": "THB/กก.",
-      "date": "20 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "confirmed"
-    }
   },
   "rubber": {
     "commodity": "ยางแผ่นรมควัน RSS3",
