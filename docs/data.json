@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-22T05:31:24.764975",
+  "generated_at": "2026-04-22T18:00:24.505739",
   "generated_date": "22 April 2026",
   "generated_date_th": "22 เม.ย. 2569",
   "rice_fob": {
@@ -97,9 +97,9 @@
       "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
       "commodity_en": "Fresh Cassava 30% Starch",
       "price_low": 2.9,
-      "price_high": 3.0,
+      "price_high": 3.1,
       "unit": "THB/กก.",
-      "date": "20 เมษายน 2569",
+      "date": "22 เมษายน 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
@@ -107,10 +107,10 @@
     "cassava_chips": {
       "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
       "commodity_en": "Cassava Chips Ayutthaya",
-      "price_low": 7.75,
+      "price_low": 7.6,
       "price_high": 7.8,
       "unit": "THB/กก.",
-      "date": "20 เมษายน 2569",
+      "date": "22 เมษายน 2569",
       "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
@@ -129,7 +129,7 @@
   },
   "rice_detail": {
     "trea_fob": {
-      "date": "8 Apr     2026",
+      "date": "22 Apr     2026",
       "source_url": "http://www.thairiceexporters.or.th/default_eng.htm",
       "source": "Thai Rice Exporters Association (TREA)",
       "scraped": true,
