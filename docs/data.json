@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-23T05:36:00.010708",
+  "generated_at": "2026-04-23T18:00:25.943753",
   "generated_date": "23 April 2026",
   "generated_date_th": "23 เม.ย. 2569",
   "rice_fob": {
@@ -79,17 +79,6 @@
       }
     ]
   },
-  "rubber": {
-    "commodity": "ยางแผ่นรมควัน RSS3",
-    "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 77.18,
-    "price_high": 77.18,
-    "unit": "THB/กก.",
-    "date": "Mar 2026",
-    "source": "IndexMundi / World Bank",
-    "source_url": "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb",
-    "status": "confirmed"
-  },
   "cassava": {
     "cassava_fresh": {
       "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
@@ -125,6 +114,17 @@
     "source": "สมาคมโรงสีข้าวไทย (PDF รายสัปดาห์)",
     "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
     "history_30d": [],
+    "status": "confirmed"
+  },
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 77.18,
+    "price_high": 77.18,
+    "unit": "THB/กก.",
+    "date": "Mar 2026",
+    "source": "IndexMundi / World Bank",
+    "source_url": "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb",
     "status": "confirmed"
   },
   "rice_detail": {
