@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-24T05:41:01.471107",
+  "generated_at": "2026-04-24T18:00:23.300447",
   "generated_date": "24 April 2026",
   "generated_date_th": "24 เม.ย. 2569",
   "rubber": {
@@ -33,30 +33,6 @@
       "date": "มี.ค. 69",
       "source": "Thai Rice Exporters Assoc.",
       "source_url": "https://www.nationthailand.com",
-      "status": "confirmed"
-    }
-  },
-  "cassava": {
-    "cassava_fresh": {
-      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
-      "commodity_en": "Fresh Cassava 30% Starch",
-      "price_low": 2.9,
-      "price_high": 3.1,
-      "unit": "THB/กก.",
-      "date": "22 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "confirmed"
-    },
-    "cassava_chips": {
-      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
-      "commodity_en": "Cassava Chips Ayutthaya",
-      "price_low": 7.6,
-      "price_high": 7.8,
-      "unit": "THB/กก.",
-      "date": "22 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     }
   },
@@ -117,15 +93,39 @@
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
     "commodity_en": "Jasmine Paddy Rice",
-    "price": 14350,
+    "price": 14567,
     "price_low": 7500,
-    "price_high": 17500,
+    "price_high": 18000,
     "unit": "THB/ตัน",
-    "date": "17042569",
+    "date": "24042569",
     "source": "สมาคมโรงสีข้าวไทย (PDF รายสัปดาห์)",
     "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
     "history_30d": [],
     "status": "confirmed"
+  },
+  "cassava": {
+    "cassava_fresh": {
+      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
+      "commodity_en": "Fresh Cassava 30% Starch",
+      "price_low": 2.9,
+      "price_high": 3.1,
+      "unit": "THB/กก.",
+      "date": "22 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    },
+    "cassava_chips": {
+      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
+      "commodity_en": "Cassava Chips Ayutthaya",
+      "price_low": 7.6,
+      "price_high": 7.8,
+      "unit": "THB/กก.",
+      "date": "22 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    }
   },
   "rice_detail": {
     "trea_fob": {
@@ -175,8 +175,8 @@
       ]
     },
     "thai_rice_mills": {
-      "date": "17042569",
-      "pdf_url": "http://www.thairicemillers.org/images/introc_1429264173/Pricerice17042569.pdf",
+      "date": "24042569",
+      "pdf_url": "http://www.thairicemillers.org/images/introc_1429264173/Pricerice24042569.pdf",
       "source": "สมาคมโรงสีข้าวไทย",
       "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
       "scraped": true,
@@ -191,15 +191,15 @@
         {
           "name_th": "ข้าวขาว 5%",
           "name_en": "White Rice 5%",
-          "price_low": 3383,
-          "price_high": 3500,
+          "price_low": 3500,
+          "price_high": 3667,
           "unit": "THB/100กก."
         },
         {
           "name_th": "ข้าวเหนียว กข.6 อีสาน (68/69)",
           "name_en": "Sticky Rice KKhaw 6 (68/69)",
           "price_low": 12000,
-          "price_high": 12500,
+          "price_high": 12600,
           "unit": "THB/100กก."
         }
       ],
@@ -213,13 +213,13 @@
       "paddy_jasmine": [
         {
           "province": "บุรีรัมย์",
-          "price_low": 16800,
-          "price_high": 17400
+          "price_low": 17000,
+          "price_high": 17600
         },
         {
           "province": "ร้อยเอ็ด",
-          "price_low": 16500,
-          "price_high": 17500
+          "price_low": 16600,
+          "price_high": 17600
         },
         {
           "province": "อุบลราชธานี",
@@ -228,13 +228,13 @@
         },
         {
           "province": "ศรีสะเกษ",
-          "price_low": 16500,
-          "price_high": 17500
+          "price_low": 17000,
+          "price_high": 18000
         },
         {
           "province": "อุดรธานี",
-          "price_low": 10000,
-          "price_high": 11000
+          "price_low": 10500,
+          "price_high": 11500
         },
         {
           "province": "ขอนแก่น",
@@ -246,12 +246,12 @@
         {
           "province": "ขอนแก่น (68/69)",
           "price_low": 12000,
-          "price_high": 12500
+          "price_high": 12600
         },
         {
           "province": "อุดรธานี (68/69)",
-          "price_low": 11500,
-          "price_high": 12200
+          "price_low": 11800,
+          "price_high": 12500
         }
       ],
       "paddy_white_stats": {
@@ -260,9 +260,9 @@
         "max": 8200
       },
       "paddy_jasmine_stats": {
-        "avg": 14350,
+        "avg": 14567,
         "min": 7500,
-        "max": 17500
+        "max": 18000
       },
       "paddy_pathum": []
     }
