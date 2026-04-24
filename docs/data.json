@@ -1,7 +1,18 @@
 {
-  "generated_at": "2026-04-24T04:13:13.172125",
+  "generated_at": "2026-04-24T05:41:01.471107",
   "generated_date": "24 April 2026",
   "generated_date_th": "24 เม.ย. 2569",
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 133.0,
+    "price_high": 133.0,
+    "unit": "THB/กก.",
+    "date": "",
+    "source": "Yahoo Finance TOCOM (TRB=F)",
+    "source_url": "https://finance.yahoo.com/",
+    "status": "confirmed"
+  },
   "rice_fob": {
     "white5": {
       "commodity": "ข้าวขาว 5% FOB Bangkok",
@@ -102,17 +113,6 @@
         "source": "อ้างอิง"
       }
     ]
-  },
-  "rubber": {
-    "commodity": "ยางแผ่นรมควัน RSS3",
-    "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 77.18,
-    "price_high": 77.18,
-    "unit": "THB/กก.",
-    "date": "Mar 2026",
-    "source": "IndexMundi / World Bank",
-    "source_url": "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb",
-    "status": "confirmed"
   },
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
