@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-04-25T03:47:45.824092",
+  "generated_at": "2026-04-25T05:19:30.094877",
   "generated_date": "25 April 2026",
   "generated_date_th": "25 เม.ย. 2569",
   "rubber": {
     "commodity": "ยางแผ่นรมควัน RSS3",
     "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 132.94,
-    "price_high": 132.94,
+    "price_low": 77.18,
+    "price_high": 77.18,
     "unit": "THB/กก.",
-    "date": "",
-    "source": "Yahoo Finance TOCOM (TRB=F)",
-    "source_url": "https://finance.yahoo.com/",
+    "date": "Mar 2026",
+    "source": "IndexMundi / World Bank",
+    "source_url": "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb",
     "status": "confirmed"
   },
   "rice_fob": {
