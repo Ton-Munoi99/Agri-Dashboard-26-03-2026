@@ -1,18 +1,7 @@
 {
-  "generated_at": "2026-04-29T06:05:23.052416",
+  "generated_at": "2026-04-29T18:00:28.639379",
   "generated_date": "29 April 2026",
   "generated_date_th": "29 เม.ย. 2569",
-  "rubber": {
-    "commodity": "ยางแผ่นรมควัน RSS3",
-    "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 133.49,
-    "price_high": 133.49,
-    "unit": "THB/กก.",
-    "date": "",
-    "source": "Yahoo Finance TOCOM (TRB=F)",
-    "source_url": "https://finance.yahoo.com/",
-    "status": "confirmed"
-  },
   "rice_fob": {
     "white5": {
       "commodity": "ข้าวขาว 5% FOB Bangkok",
@@ -33,6 +22,30 @@
       "date": "มี.ค. 69",
       "source": "Thai Rice Exporters Assoc.",
       "source_url": "https://www.nationthailand.com",
+      "status": "confirmed"
+    }
+  },
+  "cassava": {
+    "cassava_fresh": {
+      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
+      "commodity_en": "Fresh Cassava 30% Starch",
+      "price_low": 2.8,
+      "price_high": 3.4,
+      "unit": "THB/กก.",
+      "date": "29 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
+      "status": "confirmed"
+    },
+    "cassava_chips": {
+      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
+      "commodity_en": "Cassava Chips Ayutthaya",
+      "price_low": 7.6,
+      "price_high": 7.75,
+      "unit": "THB/กก.",
+      "date": "29 เมษายน 2569",
+      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
+      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     }
   },
@@ -90,6 +103,17 @@
       }
     ]
   },
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 77.18,
+    "price_high": 77.18,
+    "unit": "THB/กก.",
+    "date": "Mar 2026",
+    "source": "IndexMundi / World Bank",
+    "source_url": "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb",
+    "status": "confirmed"
+  },
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
     "commodity_en": "Jasmine Paddy Rice",
@@ -102,30 +126,6 @@
     "source_url": "http://www.thairicemillers.org/index.php?lay=show&ac=article&Ntype=19",
     "history_30d": [],
     "status": "confirmed"
-  },
-  "cassava": {
-    "cassava_fresh": {
-      "commodity": "หัวมันสด เชื้อแป้ง 30% (นครราชสีมา)",
-      "commodity_en": "Fresh Cassava 30% Starch",
-      "price_low": 2.8,
-      "price_high": 3.3,
-      "unit": "THB/กก.",
-      "date": "27 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "confirmed"
-    },
-    "cassava_chips": {
-      "commodity": "มันเส้น (โกดังผู้ส่งออก อยุธยา)",
-      "commodity_en": "Cassava Chips Ayutthaya",
-      "price_low": 7.6,
-      "price_high": 7.75,
-      "unit": "THB/กก.",
-      "date": "27 เมษายน 2569",
-      "source": "สมาคมโรงงานมันสำปะหลัง ภาคอีสาน",
-      "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
-      "status": "confirmed"
-    }
   },
   "rice_detail": {
     "trea_fob": {
