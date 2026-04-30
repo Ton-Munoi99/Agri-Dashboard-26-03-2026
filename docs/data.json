@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-29T18:00:28.639379",
-  "generated_date": "29 April 2026",
-  "generated_date_th": "29 เม.ย. 2569",
+  "generated_at": "2026-04-30T04:26:56.864457",
+  "generated_date": "30 April 2026",
+  "generated_date_th": "30 เม.ย. 2569",
   "rice_fob": {
     "white5": {
       "commodity": "ข้าวขาว 5% FOB Bangkok",
@@ -48,6 +48,17 @@
       "source_url": "https://www.nettathai.org/2012-02-06-06-49-09.html",
       "status": "confirmed"
     }
+  },
+  "rubber": {
+    "commodity": "ยางแผ่นรมควัน RSS3",
+    "commodity_en": "Rubber RSS3 Domestic",
+    "price_low": 77.18,
+    "price_high": 77.18,
+    "unit": "THB/กก.",
+    "date": "Mar 2026",
+    "source": "IndexMundi / World Bank",
+    "source_url": "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb",
+    "status": "confirmed"
   },
   "sugarcane": {
     "commodity": "อ้อย (ราคาขั้นต้น)",
@@ -102,17 +113,6 @@
         "source": "อ้างอิง"
       }
     ]
-  },
-  "rubber": {
-    "commodity": "ยางแผ่นรมควัน RSS3",
-    "commodity_en": "Rubber RSS3 Domestic",
-    "price_low": 77.18,
-    "price_high": 77.18,
-    "unit": "THB/กก.",
-    "date": "Mar 2026",
-    "source": "IndexMundi / World Bank",
-    "source_url": "https://www.indexmundi.com/commodities/?commodity=rubber&currency=thb",
-    "status": "confirmed"
   },
   "rice_jasmine": {
     "commodity": "ข้าวเปลือกหอมมะลิ 105",
